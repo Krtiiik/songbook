@@ -264,7 +264,7 @@ settings.strict : true
 pdf.chorus.recall.choruslike : true
 
 // Label for recalled chorus.
-pdf.chorus.recall.tag : Refrén
+pdf.chorus.recall.tag : Ref.
 
 // Font for tag text.
 # pdf.chorus.recall.type : comment
