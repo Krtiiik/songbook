@@ -10,12 +10,7 @@ if ($choFiles.Count -eq 0) {
     exit 1
 }
 
-# Run chordpro to generate a single PDF from all songs
-chordpro $choFiles -o songbook.pdf --config chordpro.json
-
-# Check if the command succeeded
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "Songbook built successfully: songbook.pdf"
-} else {
-    Write-Host "Error building songbook. Exit code: $LASTEXITCODE"
-}
+# Run chordpro to generate a single PDF and HTML from all songs
+mkdir -Force songbook | Out-Null
+chordpro $choFiles -o songbook\songbook.pdf --config chordpro.json
+chordpro $choFiles -o songbook\songbook.html --config chordpro.json

@@ -1,0 +1,113 @@
+/* Simple chordpro stylesheet for songbook.html */
+:root {
+  --bg: #f8f7f3;
+  --text: #222222;
+  --card-bg: #ffffff;
+  --border: #dddddd;
+  --shadow: rgba(0, 0, 0, 0.05);
+  --title: var(--text);
+  --chord: color-mix(in srgb, var(--text) 80%, #ffffff 20%);
+  --chorus-bg: var(--bg);
+  --chorus-border: #2277aa;
+  --prechorus-border: #8844aa;
+  --bridge-border: #dd5500;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  counter-reset: song;
+}
+
+.song {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px var(--shadow);
+  margin: 0 auto 1.5rem;
+  max-width: 900px;
+  padding: 1.5rem;
+  scroll-snap-align: start;
+  min-height: 100vh;
+  counter-increment: song;
+}
+
+.song::before {
+  content: "Page " counter(song);
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  color: var(--title);
+}
+
+.songline {
+  width: auto;
+  border-collapse: collapse;
+  margin: 0 0 0.35rem 0;
+  white-space: pre;
+}
+
+.songline td {
+  vertical-align: top;
+  padding: 0.125rem 0;
+}
+
+.songline tr.chords td {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+  color: var(--chord);
+  white-space: pre;
+  padding-right: 0.35rem; /* ensure some horizontal spacing between chord cells */
+}
+
+.songline tr.lyrics td {
+  color: var(--text);
+}
+
+.chorus,
+.verse,
+.prechorus,
+.bridge {
+  margin-top: 1rem;
+}
+
+.chorus {
+  padding: 0.75rem 1rem;
+  background: var(--chorus-bg);
+  border-left: 4px solid var(--chorus-border);
+}
+
+.prechorus {
+  padding-left: 1rem;
+  border-left: 4px solid var(--prechorus-border);
+}
+
+.bridge {
+  padding-left: 1rem;
+  border-left: 4px solid var(--bridge-border);
+}
+
+.songline td.indent {
+  padding-left: 0.5rem;
+}
+
+@media (max-width: 720px) {
+}
+
+@media print {
+  .song {
+    break-after: page;
+    page-break-after: always;
+  }
+}

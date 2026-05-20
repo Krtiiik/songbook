@@ -657,3 +657,19 @@ pdf.sort-pages : "title,compact"
 # parser.preprocess.directive : []
 # parser.preprocess.songline  : []
 
+// Settings for HTML output.
+
+// The actual backend module.
+html.module : HTML
+
+// Default style.
+html.styles.default : chordpro.css
+
+// Additional style for screen display.
+html.styles.screen : ""
+
+// Additional style for printing.
+html.styles.print : chordpro_print.css
+
+// Embed the styles instead of linking.
+html.styles.embed : false
