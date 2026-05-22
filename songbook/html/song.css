@@ -240,7 +240,6 @@ body {
 }
 
 .cp-column-break {
-  column-break-after: always;
   break-after: column;
 }
 
