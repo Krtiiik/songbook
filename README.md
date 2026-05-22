@@ -5,8 +5,10 @@ My collection of song lyrics with guitar chord annotations.
 Build using
 
 ```
-.\build.ps1
+py build.py
 ```
+
+with the chordpro-renderer package installed.
 
 ## Songs
 

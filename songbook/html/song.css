@@ -1,0 +1,321 @@
+/* ChordPro stylesheet for songbook HTML output */
+:root {
+  --bg: #f8f7f3;
+  --text: #222222;
+  --card-bg: #ffffff;
+  --border: #dddddd;
+  --shadow: rgba(0, 0, 0, 0.05);
+  --chord: color-mix(in srgb, var(--text) 80%, #ffffff 20%);
+  --chorus-bg: var(--bg);
+  --chorus-border: #2277aa;
+  --verse-bg: var(--card-bg);
+  --verse-border: #666666;
+  --prechorus-bg: var(--bg);
+  --prechorus-border: #8844aa;
+  --bridge-bg: var(--bg);
+  --bridge-border: #dd5500;
+  --comment-text: #666666;
+  --highlight-bg: #fffacd;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0.5rem;
+}
+
+/* Song wrapper */
+.cp-song {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px var(--shadow);
+  margin: 0 auto 1.5rem;
+  max-width: 900px;
+  padding: 1.5rem;
+  scroll-snap-align: start;
+  min-height: 100vh;
+}
+
+/* Section styling */
+.cp-section {
+  margin-top: 1rem;
+}
+
+.cp-section-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+/* Chorus section */
+.cp-section[data-section="chorus"] {
+  padding: 0.75rem 1rem;
+  background: var(--chorus-bg);
+  border-left: 4px solid var(--chorus-border);
+}
+
+/* Verse section */
+.cp-section[data-section="verse"] {
+  padding: 0.75rem 1rem;
+  background: var(--verse-bg);
+  border-left: 4px solid var(--verse-border);
+}
+
+/* Pre-chorus section */
+.cp-section[data-section="prechorus"] {
+  padding: 0.75rem 1rem;
+  background: var(--prechorus-bg);
+  border-left: 4px solid var(--prechorus-border);
+}
+
+/* Bridge section */
+.cp-section[data-section="bridge"] {
+  padding: 0.75rem 1rem;
+  background: var(--bridge-bg);
+  border-left: 4px solid var(--bridge-border);
+}
+
+/* Intro/Outro sections */
+.cp-section[data-section="intro"],
+.cp-section[data-section="outro"] {
+  padding: 0.75rem 1rem;
+  background: var(--verse-bg);
+  border-left: 4px solid var(--verse-border);
+}
+
+/* Line containing chords and lyrics */
+.cp-line {
+  margin: 0.35rem 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* A chord + lyric pair */
+.cp-unit {
+  display: inline-block;
+  margin-right: 0.2em;
+}
+
+/* Chord above lyric */
+.cp-chord {
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+  color: var(--chord);
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+/* Lyric beneath a chord */
+.cp-lyric {
+  display: block;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Lyric with no chord above it */
+.cp-lyric-only {
+  display: inline;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Plain lyric line with no chords */
+.cp-lyric-line {
+  margin: 0.35rem 0;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Empty line between paragraphs */
+.cp-break {
+  margin: 0.75rem 0;
+  height: 0;
+  border: none;
+}
+
+/* Comment directives */
+.cp-comment {
+  color: var(--comment-text);
+  font-style: italic;
+  font-size: 0.95em;
+  margin: 0.5rem 0;
+  padding: 0.25rem 0.75rem;
+}
+
+.cp-comment-italic {
+  font-style: italic;
+}
+
+.cp-comment-box {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in srgb, var(--comment-text) 5%, var(--card-bg) 95%);
+}
+
+/* Highlight directive */
+.cp-highlight {
+  background: var(--highlight-bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  margin: 0.35rem 0;
+}
+
+/* Chorus reference */
+.cp-chorus-ref {
+  margin: 0.5rem 0;
+  padding: 0.25rem 0.75rem;
+  background: color-mix(in srgb, var(--chorus-border) 10%, var(--card-bg) 90%);
+  border-left: 3px solid var(--chorus-border);
+  font-style: italic;
+  color: var(--comment-text);
+}
+
+.cp-chorus-ref-label {
+  font-weight: 700;
+  margin-right: 0.25em;
+}
+
+/* Image directive */
+.cp-image {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.cp-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+/* Chord diagram directive */
+.cp-chord-diagram {
+  margin: 0.75rem 0;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.85em;
+  line-height: 1.2;
+  background: color-mix(in srgb, var(--text) 2%, var(--card-bg) 98%);
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* Transpose directive (hidden) */
+.cp-transpose {
+  display: none;
+}
+
+/* Page directives */
+.cp-new-page {
+  page-break-after: always;
+  break-after: page;
+  margin: 1rem 0;
+  border-top: 2px dashed var(--border);
+  padding-top: 1rem;
+}
+
+.cp-new-physical-page {
+  page-break-after: always;
+  break-after: page;
+  margin: 1rem 0;
+  border-top: 3px solid var(--border);
+  padding-top: 1rem;
+}
+
+.cp-column-break {
+  column-break-after: always;
+  break-after: column;
+}
+
+/* Columns directive */
+.cp-columns {
+  margin: 1rem 0;
+}
+
+.cp-columns[data-count="2"] {
+  column-count: 2;
+  column-gap: 2rem;
+  column-rule: 1px solid var(--border);
+}
+
+.cp-columns[data-count="3"] {
+  column-count: 3;
+  column-gap: 2rem;
+  column-rule: 1px solid var(--border);
+}
+
+/* Grid directives (hidden) */
+.cp-grid-on,
+.cp-grid-off {
+  display: none;
+}
+
+/* New song directive */
+.cp-new-song {
+  margin: 2rem 0;
+  border: none;
+  border-top: 2px solid var(--border);
+  height: 0;
+}
+
+/* Hide header */
+.cp-header {
+  display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 720px) {
+  .cp-song {
+    padding: 1rem;
+    margin: 0 0 1rem;
+  }
+
+  .cp-columns[data-count="2"],
+  .cp-columns[data-count="3"] {
+    column-count: 1;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .cp-song {
+    break-after: page;
+    page-break-after: always;
+    margin: 0;
+    padding: 0.5in;
+    box-shadow: none;
+    border: none;
+    min-height: auto;
+  }
+
+  .cp-new-song {
+    display: block;
+  }
+
+  .cp-new-page,
+  .cp-new-physical-page {
+    display: block;
+  }
+}
