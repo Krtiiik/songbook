@@ -1,0 +1,412 @@
+/* Stylesheet for ChordPro song rendering *************************************/
+:root {
+  /* General */
+  --bg: #f8f7f3;
+  --text: #222222;
+
+  /* Card */
+  --card-bg: #ffffff;
+  --border: #dddddd;
+  --shadow: rgba(0, 0, 0, 0.05);
+
+  /* Styles */
+  --chord: #444488;
+  --comment-text: #666666;
+  --comment-bg: #f0f0f0;
+  --highlight-bg: #fffacd;
+
+  --box-bg: var(--bg);
+
+  /* Sections */
+  --chorus-bg: var(--card-bg);
+  --chorus-border: #2277aa;
+}
+
+/* ########################################################################## */
+/* GLOBAL                                                                     */
+/* ########################################################################## */
+/* Body ***********************************************************************/
+body {
+  /* Global styles */
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+
+  /* Viewport */
+  margin: 0;
+  padding: 1rem;
+  height: calc(100svh - 2rem);
+}
+
+/* Header *********************************************************************/
+header {
+  flex: 0 0 auto; /* takes only needed height */
+
+  display: grid;
+  grid-template-columns: 1fr 5fr 1fr;
+  gap: 1rem;
+  justify-items: center;
+  align-items: stretch;
+}
+
+/* Footer *********************************************************************/
+footer {
+  flex: 0 0 auto; /* takes only needed height */
+}
+
+/* Badge **********************************************************************/
+.badge {
+  color: var(--text);
+  font-weight: 500;
+  font-size: 1.2em;
+  text-decoration: none;
+
+  padding: 0.25rem 0.75rem;
+
+  height: calc(100% - 0.5rem - 4px);
+  aspect-ratio: 1/1;
+  border-radius: 10%;
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 5px var(--shadow);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ########################################################################## */
+/* INDEX                                                                      */
+/* ########################################################################## */
+.index {
+  /* background: var(--card-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px var(--shadow);
+
+  margin: 0 1.5rem;
+  padding: 1.5rem; */
+
+  height: calc(100% - 3rem);
+
+  /* Container */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--card-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px var(--shadow);
+
+  margin: 0 1.5rem;
+  padding: 1.5rem;
+}
+
+.songs {
+  /* Container */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.songs a {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: var(--text);
+  text-decoration: none;
+  align-items: baseline;
+  border-radius: 5px;
+}
+
+.songs a:hover,
+.songs a:focus-visible {
+  background: var(--box-bg);
+  border-color: var(--chorus-border);
+}
+
+.song-title {
+  font-weight: 700;
+}
+
+.song-artist {
+  color: var(--comment-text);
+}
+
+.song-delimiter {
+  color: var(--comment-text);
+}
+
+/* ########################################################################## */
+/* SONGS                                                                      */
+/* ########################################################################## */
+/* Song card ******************************************************************/
+.cp-song {
+  background: var(--card-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px var(--shadow);
+
+  margin: 0 1.5rem;
+  padding: 1.5rem;
+  height: calc(100% - 3rem);
+
+  /* Container */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+
+/* Header *********************************************************************/
+.song-return {
+  grid-column: 1 / 1;
+  justify-self: start;
+}
+
+.song-header {
+  grid-column: 2 / 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.title {
+  margin: 0;
+
+  font-size: 2em;
+  font-weight: 700;
+
+  grid-column: 2 / 2;
+}
+.metadata {
+  font-size: 1.1em;
+  font-weight: 500;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.capo span {
+  white-space: pre;
+}
+
+/* Song content ***************************************************************/
+.song-content {
+  flex: 1 1 auto;     /* takes remaining height */
+
+  /* Container */
+  min-height: 0; /* CRITICAL for flexbox scrolling */
+  overflow-y: auto;
+
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: flex-start;
+  align-content: center;
+  gap: 1.5rem;
+}
+
+/* Section styling ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-section {
+  padding: 0 1rem;
+
+  border-radius: 5px;
+  border-left: 4px solid var(--card-bg);
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.2rem;
+}
+
+/* Tab section ---------------------------------------------------------------*/
+.cp-section[data-section="tab"] {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.85em;
+  background: var(--box-bg);
+
+  line-height: 1;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  width: fit-content;
+}
+
+/* Chorus section ------------------------------------------------------------*/
+.cp-section[data-section="chorus"] {
+  background: var(--chorus-bg);
+  border-left-color: var(--chorus-border);
+}
+
+/* Line containing chords and lyrics ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-line {
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: nowrap;
+}
+
+/* A chord + lyric pair ------------------------------------------------------*/
+.cp-unit {
+  display: inline-block;
+}
+
+/* Chord above lyric ---------------------------------------------------------*/
+.cp-chord {
+  display: block;
+  font-weight: 700;
+  color: var(--chord);
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+/* Lyrics --------------------------------------------------------------------*/
+.cp-lyric,
+.cp-lyric-only,
+.cp-lyric-line {
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Lyric beneath a chord -----------------------------------------------------*/
+.cp-lyric {
+  display: block;
+}
+
+/* Lyric with no chord above it ----------------------------------------------*/
+.cp-lyric-only {
+  display: inline;
+}
+
+/* Plain lyric line with no chords -------------------------------------------*/
+.cp-lyric-line {
+  margin: 0.35rem 0;
+  word-wrap: break-word;
+}
+
+/* Comments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-comment,
+.cp-comment-italic,
+.cp-comment-box {
+  color: var(--comment-text);
+  font-size: 0.95em;
+
+  padding: 0.25rem 0.75rem;
+}
+
+.cp-comment-italic {
+  font-style: italic;
+}
+
+.cp-comment-box {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  background: var(--comment-bg);
+}
+
+/* Highlight directive ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-highlight {
+  background: var(--highlight-bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Chorus reference ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-chorus-ref {
+  font-weight: 700;
+  background: var(--chorus-bg);
+
+  border-radius: 5px;
+  border-left: 4px solid var(--chorus-border);
+
+  padding: 0.25rem 0.75rem;
+}
+.cp-chorus-ref::before {
+  content: "Chorus";
+}
+
+/* Image directive ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-image {
+  margin: 1rem 0;
+  text-align: center;
+}
+.cp-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+/* Chord diagram directive ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-chord-diagram {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.85em;
+  line-height: 1.2;
+  background: var(--box-bg);
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* Ignored elements ***********************************************************/
+.cp-grid-on,
+.cp-grid-off,
+.cp-section-label,
+.cp-break,
+.cp-transpose,
+.cp-columns,
+.cp-header {
+  display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 720px) {
+  body {
+    padding: 0;
+    height: auto;
+    overflow: scroll;
+  }
+
+  .cp-song {
+    margin: 0;
+    padding: 0.5in;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+    padding: 0;
+    height: auto;
+  }
+
+  .cp-song {
+    margin: 0;
+    padding: 0.5in;
+    overflow: scroll;
+  }
+
+  .song-content {
+    gap: 1rem;
+    overflow: scroll;
+  }
+}

@@ -5,109 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Songbook</title>
-    <link rel="stylesheet" href="song.css">
-    <style>
-        body {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-        
-        .index-header {
-            margin-bottom: 2rem;
-        }
-        
-        .index-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .song-count {
-            color: var(--comment-text, #666);
-            font-style: italic;
-        }
-        
-        .song-list ol {
-            list-style: decimal;
-            padding-left: 2rem;
-        }
-        
-        .song-list li {
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
-        
-        .song-list a {
-            text-decoration: none;
-            color: #2277aa;
-            font-weight: 500;
-        }
-        
-        .song-list a:hover {
-            text-decoration: underline;
-        }
-        
-        .song-title {
-            display: block;
-            font-size: 1.1rem;
-        }
-        
-        .song-artist {
-            display: block;
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.25rem;
-        }
-    </style>
+    <link rel="stylesheet" href="stylesheet.css">
 </head>
 
 <body>
-    <div class="index-header">
-        <h1>Songbook</h1>
-        <p class="song-count">4 songs</p>
+    <div class="index">
+        <header class="card">
+            <h1 class="title">Songbook</h1>
+        </header>
+        <nav class="card songs">
+            
+            <a href="songs\klidná_jako_voda.html">
+                <span class="song-title">Klidná jako voda</span>
+                <span class="song-artist">Jelen</span>
+            </a>
+            
+            <a href="songs\three_little_birds.html">
+                <span class="song-title">Three Little Birds</span>
+                <span class="song-artist">Bob Marley</span>
+            </a>
+            
+            <a href="songs\time_is_a_river.html">
+                <span class="song-title">time is a river</span>
+                <span class="song-artist">fiedlerski</span>
+            </a>
+            
+            <a href="songs\země_vzdálená.html">
+                <span class="song-title">Země vzdálená</span>
+                <span class="song-artist">BSP</span>
+            </a>
+            
+        </nav>
     </div>
-    
-    <nav class="song-list">
-        <ol>
-        
-            <li>
-                <a href="songs\klidná_jako_voda.html">
-                    <span class="song-title">Klidná jako voda</span>
-                    
-                        <span class="song-artist">Jelen</span>
-                    
-                </a>
-            </li>
-        
-            <li>
-                <a href="songs\three_little_birds.html">
-                    <span class="song-title">Three Little Birds</span>
-                    
-                        <span class="song-artist">Bob Marley</span>
-                    
-                </a>
-            </li>
-        
-            <li>
-                <a href="songs\time_is_a_river.html">
-                    <span class="song-title">time is a river</span>
-                    
-                        <span class="song-artist">fiedlerski</span>
-                    
-                </a>
-            </li>
-        
-            <li>
-                <a href="songs\země_vzdálená.html">
-                    <span class="song-title">Země vzdálená</span>
-                    
-                        <span class="song-artist">BSP</span>
-                    
-                </a>
-            </li>
-        
-        </ol>
-    </nav>
 </body>
 
 </html>

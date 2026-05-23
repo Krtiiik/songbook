@@ -72,7 +72,7 @@ def build_html(songs: list[Song], semi_to_name, output_dir: Path, templates_dir:
 
     # Create index.html and copy stylesheet
     create_html_index(songs_info, output_dir, templates_dir)
-    shutil.copy(templates_dir / "song.css", songs_dir / "song.css")
+    shutil.copy(templates_dir / "stylesheet.css", output_dir / "stylesheet.css")
 
 
 def create_html_index(songs_info: list[dict], output_dir: Path, templates_dir: Path):

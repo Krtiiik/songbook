@@ -5,70 +5,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ song.meta.title }}</title>
-    <link rel="stylesheet" href="song.css">
+    <link rel="stylesheet" href="../stylesheet.css">
 </head>
 
 <body>
     <div class="cp-song">
         <header>
-            <h1 class="title">{{ song.meta.title }}</h1>
-            {% if song.meta.subtitle %}
-                {% for subtitle in song.meta.subtitle %}
-                    <h2 class="subtitle">{{ subtitle }}</h2>
-                {% endfor %}
-            {% endif %}
-            
-            <div class="metadata">
-                {% if song.meta.artist %}
-                    <div class="artist">
-                        <strong>Artist:</strong>
-                        {% if song.meta.artist is string %}
-                            {{ song.meta.artist }}
-                        {% else %}
-                            {{ song.meta.artist | join(", ") }}
-                        {% endif %}
-                    </div>
+            <a class="song-return badge" href="../index.html">Index</a>
+            <div class="song-header">
+                <h1 class="title">{{ song.meta.title }}</h1>
+                {% if song.meta.subtitle %}
+                    {% for subtitle in song.meta.subtitle %}
+                        <h2 class="subtitle">{{ subtitle }}</h2>
+                    {% endfor %}
                 {% endif %}
-                
-                {% if song.meta.key %}
-                    <div class="key">
-                        <strong>Key:</strong>
-                        {% if song.meta.key is string %}
-                            {{ song.meta.key }}
-                        {% else %}
-                            {{ song.meta.key[0] if song.meta.key else "" }}
-                        {% endif %}
-                    </div>
-                {% endif %}
-                
-                {% if song.meta.capo %}
-                    <div class="capo">
-                        <strong>Capo:</strong> {{ song.meta.capo }}
-                    </div>
-                {% endif %}
-                
-                {% if song.meta.composer %}
-                    <div class="composer">
-                        <strong>Composer:</strong>
-                        {% if song.meta.composer is string %}
-                            {{ song.meta.composer }}
-                        {% else %}
-                            {{ song.meta.composer | join(", ") }}
-                        {% endif %}
-                    </div>
-                {% endif %}
+                <div class="metadata">
+                    {% if song.meta.artist %}
+                        <div class="artist">
+                            {% if song.meta.artist is string %}
+                                {{ song.meta.artist }}
+                            {% else %}
+                                {{ song.meta.artist | join(", ") }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
+            {% if song.meta.capo %}
+                <div class="capo badge">
+                    <span>Capo </span> {{ song.meta.capo }}
+                </div>
+            {% endif %}
         </header>
 
         <main class="song-content">
             {{ rendered_content | safe }}
         </main>
-
-        <footer>
-            <nav class="song-nav">
-                <a href="../index.html">Back to Index</a>
-            </nav>
-        </footer>
     </div>
 </body>
 

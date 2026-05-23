@@ -5,82 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Songbook</title>
-    <link rel="stylesheet" href="song.css">
-    <style>
-        body {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-        
-        .index-header {
-            margin-bottom: 2rem;
-        }
-        
-        .index-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .song-count {
-            color: var(--comment-text, #666);
-            font-style: italic;
-        }
-        
-        .song-list ol {
-            list-style: decimal;
-            padding-left: 2rem;
-        }
-        
-        .song-list li {
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
-        
-        .song-list a {
-            text-decoration: none;
-            color: #2277aa;
-            font-weight: 500;
-        }
-        
-        .song-list a:hover {
-            text-decoration: underline;
-        }
-        
-        .song-title {
-            display: block;
-            font-size: 1.1rem;
-        }
-        
-        .song-artist {
-            display: block;
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.25rem;
-        }
-    </style>
+    <link rel="stylesheet" href="stylesheet.css">
 </head>
 
 <body>
-    <div class="index-header">
-        <h1>Songbook</h1>
-        <p class="song-count">{{ songs|length }} song{{ "s" if songs|length != 1 else "" }}</p>
+    <div class="index">
+        <header class="card">
+            <h1 class="title">Songbook</h1>
+        </header>
+        <nav class="card songs">
+            {% for song in songs %}
+            <a href="{{ song.filename }}">
+                <span class="song-title">{{ song.title }}</span>
+                {% if song.artist %}<span class="song-artist">{{ song.artist }}</span>{% endif %}
+            </a>
+            {% endfor %}
+        </nav>
     </div>
-    
-    <nav class="song-list">
-        <ol>
-        {% for song in songs %}
-            <li>
-                <a href="{{ song.filename }}">
-                    <span class="song-title">{{ song.title }}</span>
-                    {% if song.artist %}
-                        <span class="song-artist">{{ song.artist }}</span>
-                    {% endif %}
-                </a>
-            </li>
-        {% endfor %}
-        </ol>
-    </nav>
 </body>
 
 </html>
