@@ -42,11 +42,14 @@ def build_html(songs: list[Song], semi_to_name, output_dir: Path, templates_dir:
     song_template = env.get_template("song.html")
 
     # Create song files
+    songs_dir = output_dir / "songs"
+    songs_dir.mkdir(exist_ok=True)
+
     songs_info = []
     for song in songs:
         song_name_f = song.meta.title.replace(" ", "_").lower()
         filename = f"{song_name_f}.html"
-        output_file = output_dir / filename
+        output_file = songs_dir / filename
 
         # Render song content with chordpro
         rendered_content = render(song, semi_to_name, format="html")
@@ -63,13 +66,13 @@ def build_html(songs: list[Song], semi_to_name, output_dir: Path, templates_dir:
 
         songs_info.append({
             "title": song.meta.title,
-            "filename": filename,
+            "filename": str(output_file.relative_to(output_dir)),
             "artist": artist,
         })
 
     # Create index.html and copy stylesheet
     create_html_index(songs_info, output_dir, templates_dir)
-    shutil.copy(templates_dir / "song.css", output_dir / "song.css")
+    shutil.copy(templates_dir / "song.css", songs_dir / "song.css")
 
 
 def create_html_index(songs_info: list[dict], output_dir: Path, templates_dir: Path):
@@ -100,7 +103,9 @@ def get_songs(songs_dir: Path):
 
 
 def setup(args):
-    args.output.mkdir(exist_ok=True)
+    if args.output.exists():
+        shutil.rmtree(args.output)
+    args.output.mkdir()
 
 
 if __name__ == "__main__":
