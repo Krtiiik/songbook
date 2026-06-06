@@ -66,12 +66,16 @@ footer {
   height: calc(100% - 0.5rem - 4px);
   aspect-ratio: 1/1;
   border-radius: 10%;
-  border: 2px solid var(--border);
-  box-shadow: 0 2px 5px var(--shadow);
+  /* border: 2px solid var(--border); */
+  box-shadow: 0 5px 5px 5px var(--shadow);
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.badge:active {
+  box-shadow: 0 5px 5px 5px var(--shadow) inset;
 }
 
 /* ########################################################################## */
