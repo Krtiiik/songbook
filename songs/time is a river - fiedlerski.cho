@@ -1,8 +1,6 @@
 {artist: fiedlerski}
 {title: time is a river}
 
-{columns: 2}
-
 {start_of_verse}
 [Em] The morning stole away my [C]dreams
 I saw you dance across the [G]stream
@@ -50,8 +48,6 @@ Left with time, time is a river
 Time is a river, time is a river
 I've seen-
 {end_of_chorus}
-
-{column_break}
 
 {start_of_bridge}
 [C]I [G]should have put you [Dsus4]first
