@@ -163,7 +163,7 @@ footer {
   /* Container */
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
   justify-content: flex-start;
   gap: 2rem;
 }
@@ -211,14 +211,16 @@ footer {
 .song-content {
   flex: 1 1 auto;     /* takes remaining height */
 
-  /* Container */
   min-height: 0; /* CRITICAL for flexbox scrolling */
   overflow-y: auto;
+  width: fit-content;
+  max-width: 100%;
 
   display: flex;
   flex-flow: column wrap;
   justify-content: flex-start;
-  align-content: center;
+  align-content: flex-start;
+  align-items: flex-start;
   gap: 1.5rem;
 }
 
