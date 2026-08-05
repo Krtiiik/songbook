@@ -222,23 +222,26 @@ footer {
 
 /* Section Accents ************************************************************/
 
-.cp-section,
-.cp-chorus-ref,
-.cp-comment,
-.cp-comment-italic,
-.cp-comment-box {
-  padding-left: calc(var(--airiness) - 2px);
-  margin-left: 2px;
-  border-left: 4px solid var(--bg);
-}
+/* This nested in #song-content as comments can be inside sections */
+#song-content {
+  >.cp-section,
+  >.cp-chorus-ref,
+  >.cp-comment,
+  >.cp-comment-italic,
+  >.cp-comment-box {
+    padding-left: calc(var(--airiness) - 2px);
+    margin-left: 2px;
+    border-left: 4px solid var(--bg);
+  }
 
-.cp-section[data-section="chorus"],
-.cp-chorus-ref {
-  border-left-color: var(--accent-chorus);
-}
+  .cp-section[data-section="chorus"],
+  .cp-chorus-ref {
+    border-left-color: var(--accent-chorus);
+  }
 
-.cp-section[data-section="tab"] {
-  border-left-color: var(--accent-tab);
+  .cp-section[data-section="tab"] {
+    border-left-color: var(--accent-tab);
+  }
 }
 
 /* Comments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
