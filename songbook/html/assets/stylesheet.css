@@ -71,6 +71,9 @@ body {
   gap: var(--airiness);
   grid-template-columns: 1fr auto 1fr;
   align-items: baseline;
+
+  box-shadow: 0 2px 4px 1px gray;
+  z-index: 1;
 }
 
 #song-content {
