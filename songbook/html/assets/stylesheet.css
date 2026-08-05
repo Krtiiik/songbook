@@ -65,7 +65,7 @@ body {
 #song-header {
   flex: 0 0 auto;
   width: stretch;
-  padding: var(--airiness);
+  padding: var(--airiness) calc(2 * var(--airiness)) ;
 
   display: grid;
   gap: var(--airiness);
