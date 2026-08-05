@@ -14,7 +14,7 @@ parser.add_argument("--songs", default="songs", type=Path, help="Directory conta
 parser.add_argument("--config", default="chordpro.json", type=Path, help="Path to chordpro configuration file")
 parser.add_argument("--output", default="songbook", type=Path, help="Output directory for built songbooks")
 parser.add_argument("--templates", default="templates", type=Path, help="Directory containing HTML templates")
-
+parser.add_argument("--assets", default="assets", type=Path, help="Directory containing asset files")
 
 def render_to_file(songs: Song | list[Song], semi_to_name, output_file: Path, format: str):
     """Render a single song or multiple songs and write to file."""
@@ -33,7 +33,7 @@ def build_pdf(songs: list[Song], semi_to_name, output_path: Path):
     render_to_file(songs, semi_to_name, output_path, "pdf")
 
 
-def build_html(songs: list[Song], semi_to_name, output_dir: Path, templates_dir: Path):
+def build_html(songs: list[Song], semi_to_name, output_dir: Path, templates_dir: Path, assets_dir: Path):
     """Build individual HTML files for each song and create an index."""
     output_dir.mkdir(exist_ok=True)
 
@@ -72,7 +72,7 @@ def build_html(songs: list[Song], semi_to_name, output_dir: Path, templates_dir:
 
     # Create index.html and copy stylesheet
     create_html_index(songs_info, output_dir, templates_dir)
-    shutil.copy(templates_dir / "stylesheet.css", output_dir / "stylesheet.css")
+    shutil.copytree(assets_dir, output_dir / "assets", dirs_exist_ok=True)
 
 
 def create_html_index(songs_info: list[dict], output_dir: Path, templates_dir: Path):
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     semi_to_name = build_chord_semi_to_name("standard")
 
     build_pdf(songs, semi_to_name, args.output / "songbook.pdf")
-    build_html(songs, semi_to_name, args.output / "html", args.templates)
+    build_html(songs, semi_to_name, args.output / "html", args.templates, args.assets / "html")

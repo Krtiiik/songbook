@@ -1,0 +1,293 @@
+/* Stylesheet for ChordPro song rendering *************************************/
+:root {
+  --airiness: 20px;
+
+  /* General */
+  --bg: #f8f8f8;
+  --text: #000000;
+  --accent: #2277aa;
+  --chord: var(--accent);
+  --comment: #555555;
+
+  /* Nav */
+  --songs-gap: 15px;
+
+  /* Sections */
+  --accent-chorus: var(--accent);
+  --accent-tab: var(--comment);
+  --accent-comment: var(--comment);
+}
+
+/* GLOBAL ################################################################### */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  margin: 0;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* INDEX #################################################################### */
+
+#index-songs {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--songs-gap);
+
+  >a {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--airiness) / 2);
+    color: var(--text);
+    text-decoration: none;
+    align-items: baseline;
+  }
+}
+
+.index-song-title {
+  font-weight: 700;
+}
+
+.index-song-artist {
+  font-style: italic;
+}
+
+/* SONGS #################################################################### */
+
+#song-header {
+  flex: 0 0 auto;
+  width: stretch;
+  padding: var(--airiness);
+
+  display: grid;
+  gap: var(--airiness);
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+}
+
+#song-content {
+  flex: 1 1 auto;
+
+  padding: var(--airiness);
+  min-height: 0;
+  overflow-y: auto;
+  width: fit-content;
+
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: flex-start;
+  row-gap: var(--airiness);
+  column-gap: calc(2*var(--airiness));
+}
+
+footer {
+  flex: 0 0 auto;
+}
+
+/* Header *********************************************************************/
+
+#song-header-buttons {
+  justify-self: start;
+}
+
+#song-header-title {
+  justify-self: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#song-header-meta {
+  justify-self: end;
+}
+
+#song-title {
+  margin: 0;
+
+  font-size: 2em;
+  font-weight: 700;
+  text-align : center;
+}
+
+/* Lines, Chords, Lyrics ******************************************************/
+
+.cp-line {
+  word-wrap: break-word;
+}
+
+.cp-unit {
+  display: inline-block;
+}
+
+.cp-chord {
+  display: block;
+  color: var(--chord);
+  font-weight: 700;
+  margin-right: 5px;
+}
+
+.cp-lyric,
+.cp-lyric-only,
+.cp-lyric-line {
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Sections *******************************************************************/
+
+.cp-section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.2rem;
+}
+
+/* Tabs Sections **************************************************************/
+
+.cp-section[data-section="tab"] {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.85em;
+  background: var(--box-bg);
+
+  line-height: 1;
+
+  min-height: fit-content;
+  max-width: 400px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.cp-section[data-section="tab"] .cp-lyric-line {
+  min-width: 0;
+  max-width: 100%;
+  min-height: fit-content;
+  overflow-x: visible;
+  white-space: nowrap;
+}
+
+/* Sections Numbering *********************************************************/
+
+.cp-section[data-section="verse"] {
+  counter-increment: verse;
+}
+
+.cp-section {
+  position: relative;
+}
+
+.cp-section::before {
+  position: absolute;
+
+  left: -7px;
+  top: 22.5px;
+
+  line-height: normal;
+
+  color: var(--comment);
+  font-weight: 700;
+}
+
+.cp-section[data-section="verse"]::before {
+  content: counter(verse);
+}
+
+.cp-section[data-section="bridge"]::before {
+  content: "B";
+}
+
+.cp-section[data-section="prechorus"]::before {
+  content: "P";
+}
+
+/* References ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.cp-chorus-ref {
+  font-weight: 700;
+}
+
+.cp-chorus-ref::before {
+  content: "Ref";
+}
+
+/* Section Accents ************************************************************/
+
+.cp-section,
+.cp-chorus-ref,
+.cp-comment,
+.cp-comment-italic,
+.cp-comment-box {
+  padding-left: calc(var(--airiness) - 2px);
+  margin-left: 2px;
+  border-left: 4px solid var(--bg);
+}
+
+.cp-section[data-section="chorus"],
+.cp-chorus-ref {
+  border-left-color: var(--accent-chorus);
+}
+
+.cp-section[data-section="tab"] {
+  border-left-color: var(--accent-tab);
+}
+
+/* Comments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+.cp-comment,
+.cp-comment-italic,
+.cp-comment-box {
+  color: var(--comment);
+  font-style: italic;
+}
+
+.cp-comment-box {
+  border-left-color: var(--accent-comment);
+}
+
+/* Ignored elements ***********************************************************/
+.cp-grid-on,
+.cp-grid-off,
+.cp-section-label,
+.cp-break,
+.cp-transpose,
+.cp-columns,
+.cp-header {
+  display: none;
+}
+
+/* Buttons ********************************************************************/
+
+.button {
+  color: var(--text);
+  text-decoration: none;
+  height: 100%;
+  display: inline-block;
+
+  i {
+    font-size: 1.8em;
+    filter: drop-shadow(2px 2px 3px gray);
+  }
+}
+
+/* Small Device ***************************************************************/
+
+@media (max-width: 600px) {
+  #song-content {
+    flex-flow: column;
+    width: stretch;
+  }
+
+  .cp-section[data-section="tab"] {
+    max-width: stretch;
+  }
+}

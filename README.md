@@ -2,7 +2,7 @@
 
 My collection of song lyrics with guitar chord annotations.
 
-Build using
+Build with python using
 
 ```
 py build.py
