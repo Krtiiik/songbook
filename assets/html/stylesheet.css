@@ -146,6 +146,21 @@ footer {
 
 /* Sections *******************************************************************/
 
+.cp-section[data-section="intro"],
+.cp-section[data-section="interlude"],
+.cp-section[data-section="outro"] {
+  .cp-lyric,
+  .cp-lyric-only,
+  .cp-lyric-line {
+    height: fit-content;
+    white-space: initial;
+    min-height: 0;
+    min-width: 0;
+  }
+}
+
+/* Sections *******************************************************************/
+
 .cp-section {
   display: flex;
   flex-direction: column;
