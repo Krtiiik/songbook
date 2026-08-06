@@ -101,6 +101,12 @@ footer {
 
 #song-header-buttons {
   justify-self: start;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: var(--airiness);
 }
 
 #song-header-title {
@@ -162,7 +168,7 @@ footer {
 .cp-section[data-section="tab"] {
   font-family: "Courier New", Courier, monospace;
   font-size: 0.85em;
-  background: var(--box-bg);
+  background: var(--bg);
 
   line-height: 1;
 
@@ -217,6 +223,7 @@ footer {
 /* References ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .cp-chorus-ref {
   font-weight: 700;
+  color: var(--comment);
 }
 
 .cp-chorus-ref::before {
@@ -280,9 +287,54 @@ footer {
   display: inline-block;
 
   i {
-    font-size: 1.8em;
+    font-size: 30px;
     filter: drop-shadow(2px 2px 3px gray);
   }
+}
+
+button {
+  background-color: var(--bg);
+  border: none;
+  padding: 0;
+
+  i {
+    font-size: 30px;
+    filter: drop-shadow(2px 2px 3px gray);
+  }
+}
+
+/* Transpositions *************************************************************/
+
+#transpose-box {
+    position: absolute;
+    top: 50px;
+    left: 0px;
+
+    background: var(--bg);
+    border: 2px solid gray;
+    border-radius: 5px;
+    box-shadow: 0 5px 10px 0px gray;
+
+    padding: var(--airiness);
+    display: flex;
+    gap: var(--airiness);
+    z-index: 1000;
+}
+
+#transpose-box.hidden {
+    display: none;
+}
+
+#transpose-show {
+  font-size: 30px;
+  width: 2ch;
+  text-align: right;
+  display: inline-block;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#song-header-buttons {
+    position: relative;
 }
 
 /* Small Device ***************************************************************/
@@ -294,7 +346,24 @@ footer {
     padding-bottom: 100px;
   }
 
+  #song-header {
+    padding-left: var(--airiness);
+    padding-right: var(--airiness);
+  }
+
   .cp-section[data-section="tab"] {
     max-width: stretch;
+  }
+
+  #song-header-buttons {
+    flex-direction: column;
+    gap: calc(var(--airiness) / 2);
+  }
+
+  #transpose-box {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }

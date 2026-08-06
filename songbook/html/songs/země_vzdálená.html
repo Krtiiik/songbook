@@ -15,6 +15,16 @@
             <a class="button" href="../index.html">
                 <i class="bi bi-music-note-list"></i>
             </a>
+
+            <button id="transpose-toggle" class="button">
+                <i class="bi bi-sliders"></i>
+            </button>
+            <div id="transpose-box" class="hidden">
+                <button id="transpose-reset" class="button"><i class="bi bi-record-circle"></i></button>
+                <div id="transpose-show">0</div>
+                <button id="transpose-down" class="button"><i class="bi bi-dash-circle"></i></button>
+                <button id="transpose-up" class="button"><i class="bi bi-plus-circle"></i></button>
+            </div>
         </div>
         <div id="song-header-title">
             <h1 id="song-title">Země vzdálená</h1>
@@ -81,6 +91,8 @@
 </div>
 <div class="cp-break"></div>
     </main>
+
+    <script src="../assets/chord_transpositions.js"></script>
 </body>
 
 </html>
