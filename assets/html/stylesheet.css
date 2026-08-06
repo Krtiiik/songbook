@@ -291,6 +291,7 @@ footer {
   #song-content {
     flex-flow: column;
     width: stretch;
+    padding-bottom: 100px;
   }
 
   .cp-section[data-section="tab"] {
