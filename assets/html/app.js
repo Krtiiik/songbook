@@ -41,6 +41,7 @@ function router() {
 
     if (!id || !(id in songs)) {
         switchView(View.Index);
+        document.title = "Krtkův Zpěvník";
     }
     else {
         loadSong(id);
@@ -85,6 +86,7 @@ function loadSong(id) {
         document.getElementById("song-meta-capo").textContent = "";
     }
     document.getElementById("song-content").innerHTML = song.content;
+    document.title = song.title;
 
     currentSongIndex = songIdsIndices[id];
 }
