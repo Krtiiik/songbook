@@ -409,7 +409,7 @@ button {
 
 /* Small Device ***************************************************************/
 
-@media (max-width: 600px) {
+@media (max-width: 600px), (max-height: 600px) {
   body {
     height: auto;
   }
