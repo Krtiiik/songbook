@@ -4,26 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Songbook</title>
+    <title></title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="assets/stylesheet.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="assets/app.js"></script>
 </head>
 
 <body>
+    <!-- Index -->
     <header id="index-header">
-        <h1>Songbook</h1>
+        <h1>Krtkův Zpěvník</h1>
     </header>
+
     <nav id="index-songs">
         {% for song in songs %}
-        <a href="{{ song.filename }}">
+        <a href="#{{ song.id }}">
             <span class="index-song-title">{{ song.title }}</span>
-            {% if song.artist %}
-            <span class="index-song-artist">{{ song.artist }}</span>
-            {% endif %}
+            {% if song.artist %}<span class="index-song-artist">{{ song.artist }}</span>{% endif %}
         </a>
         {% endfor %}
     </nav>
+
+    <!-- Songs -->
+    <header id="song-header" class="hidden">
+        <div id="song-header-buttons">
+            <a class="button" href="#"><i class="bi bi-music-note-list"></i></a>
+
+            <button id="transpose-toggle" class="button"><i class="bi bi-sliders"></i></button>
+            <div id="transpose-box" class="toggled-box hidden">
+                <button id="transpose-reset" class="button"><i class="bi bi-record-circle"></i></button>
+                <div id="transpose-show" class="control-show">0</div>
+                <button id="transpose-down" class="button"><i class="bi bi-dash-circle"></i></button>
+                <button id="transpose-up" class="button"><i class="bi bi-plus-circle"></i></button>
+            </div>
+
+            <button id="zoom-toggle" class="button"><i class="bi bi-zoom-in"></i></button>
+            <div id="zoom-box" class="toggled-box hidden">
+                <button id="zoom-reset" class="button"><i class="bi bi-x-circle"></i></button>
+                <div id="zoom-show" class="control-show">100%</div>
+                <button id="zoom-out" class="button"><i class="bi bi-zoom-out"></i></button>
+                <button id="zoom-in" class="button"><i class="bi bi-zoom-in"></i></button>
+            </div>
+
+            <button id="seek-previous" class="button-seek"><i class="bi bi-arrow-bar-left"></i></button>
+            <button id="seek-next" class="button-seek"><i class="bi bi-arrow-bar-right"></i></button>
+        </div>
+        <div id="song-header-title">
+            <h1 id="song-title"></h1>
+            <h2 id="song-artist"></h2>
+        </div>
+        <div id="song-header-meta">
+            <span id="song-meta-capo"></span>
+        </div>
+    </header>
+
+    <main id="song-content" class="hidden">
+    </main>
 </body>
 
 </html>

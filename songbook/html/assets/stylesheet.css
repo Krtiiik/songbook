@@ -33,7 +33,34 @@ body {
   align-items: center;
 }
 
+#index-header,
+#song-header {
+  flex: 0 0 auto;
+
+  padding: var(--airiness) calc(2 * var(--airiness));
+  width: stretch;
+
+  box-shadow: 0 2px 4px 1px gray;
+  z-index: 1;
+}
+
+h1 {
+  margin: 0;
+}
+
+h2 {
+  margin: 0;
+  font-weight: 300;
+}
+
 /* INDEX #################################################################### */
+
+#index-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
 
 #index-songs {
   display: flex;
@@ -42,13 +69,16 @@ body {
   justify-content: flex-start;
   gap: var(--songs-gap);
 
+  padding: var(--airiness);
+
   >a {
     display: flex;
     flex-wrap: wrap;
+    align-items: baseline;
     gap: calc(var(--airiness) / 2);
+
     color: var(--text);
     text-decoration: none;
-    align-items: baseline;
   }
 }
 
@@ -63,23 +93,16 @@ body {
 /* SONGS #################################################################### */
 
 #song-header {
-  flex: 0 0 auto;
-  width: stretch;
-  padding: var(--airiness) calc(2 * var(--airiness)) ;
-
   display: grid;
   gap: var(--airiness);
   grid-template-columns: 1fr auto 1fr;
-  align-items: baseline;
-
-  box-shadow: 0 2px 4px 1px gray;
-  z-index: 1;
+  align-items: center;
 }
 
 #song-content {
   flex: 1 1 auto;
 
-  padding: var(--airiness);
+  padding: var(--airiness) 100px;
   min-height: 0;
   overflow-y: auto;
   width: fit-content;
@@ -91,6 +114,9 @@ body {
   align-items: flex-start;
   row-gap: var(--airiness);
   column-gap: calc(2*var(--airiness));
+
+  transform-origin: top center;
+  transition: transform 0.2s ease;
 }
 
 footer {
@@ -100,6 +126,7 @@ footer {
 /* Header *********************************************************************/
 
 #song-header-buttons {
+  position: relative;
   justify-self: start;
 
   display: flex;
@@ -126,7 +153,7 @@ footer {
 
   font-size: 2em;
   font-weight: 700;
-  text-align : center;
+  text-align: center;
 }
 
 /* Lines, Chords, Lyrics ******************************************************/
@@ -234,6 +261,7 @@ footer {
 
 /* This nested in #song-content as comments can be inside sections */
 #song-content {
+
   >.cp-section,
   >.cp-chorus-ref,
   >.cp-comment,
@@ -296,6 +324,7 @@ button {
   background-color: var(--bg);
   border: none;
   padding: 0;
+  cursor: pointer;
 
   i {
     font-size: 30px;
@@ -303,67 +332,135 @@ button {
   }
 }
 
-/* Transpositions *************************************************************/
+/* Toggle Boxes ***************************************************************/
 
-#transpose-box {
-    position: absolute;
-    top: 50px;
-    left: 0px;
+.toggled-box {
+  position: absolute;
+  top: 50px;
+  left: 0px;
 
-    background: var(--bg);
-    border: 2px solid gray;
-    border-radius: 5px;
-    box-shadow: 0 5px 10px 0px gray;
+  background: var(--bg);
+  border: 2px solid gray;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px 0px gray;
 
-    padding: var(--airiness);
-    display: flex;
-    gap: var(--airiness);
-    z-index: 1000;
+  padding: var(--airiness);
+  display: flex;
+  gap: var(--airiness);
+  z-index: 1000;
 }
 
-#transpose-box.hidden {
-    display: none;
+.hidden {
+  display: none !important;
 }
 
-#transpose-show {
+.control-show {
   font-size: 30px;
-  width: 2ch;
   text-align: right;
   display: inline-block;
   font-family: 'Courier New', Courier, monospace;
 }
 
-#song-header-buttons {
-    position: relative;
+/* Transpose ******************************************************************/
+
+#transpose-show {
+  width: 2ch;
+}
+
+/* Zoom ***********************************************************************/
+
+#zoom-show {
+  width: 4ch;
+}
+
+/* Seeks **********************************************************************/
+
+.button-seek {
+  position: fixed;
+  top: 10vh;
+  bottom: 10vh;
+  width: 100px;
+  height: 80vh;
+
+  background-color: transparent;
+  transition: background-color 0.15s ease;
+  /* the fade */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-seek:hover {
+  background-color: lightslategray;
+}
+
+#seek-previous {
+  left: 0;
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 25px;
+}
+
+#seek-next {
+  right: 0;
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
 }
 
 /* Small Device ***************************************************************/
 
 @media (max-width: 600px) {
+  body {
+    height: auto;
+  }
+
   #song-content {
     flex-flow: column;
     width: stretch;
     padding-bottom: 100px;
+    padding-left: var(--airiness);
+    padding-right: var(--airiness);
+    min-height: 65vh;
   }
 
+  #index-header,
   #song-header {
     padding-left: var(--airiness);
     padding-right: var(--airiness);
   }
 
+  #song-header-buttons {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+
+    display: inline flex;
+    background-color: var(--bg);
+    padding: calc(var(--airiness) / 2) var(--airiness);
+    gap: var(--airiness);
+
+    box-shadow: 0 -2px 4px 1px gray;
+  }
+
+  .toggled-box {
+    position: fixed;
+    top: auto;
+    bottom: 50px;
+    left: 50%;
+    height: fit-content;
+    transform: translateX(-50%);
+  }
+
+  #song-header-title {
+    grid-column-start: 2;
+  }
+
+  .button-seek {
+    display: none !important;
+  }
+
   .cp-section[data-section="tab"] {
     max-width: stretch;
-  }
-
-  #song-header-buttons {
-    flex-direction: column;
-    gap: calc(var(--airiness) / 2);
-  }
-
-  #transpose-box {
-    position: fixed;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
   }
 }
