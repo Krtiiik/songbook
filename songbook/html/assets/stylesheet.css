@@ -194,11 +194,14 @@ footer {
 /* Tabs Sections **************************************************************/
 
 .cp-section[data-section="tab"] {
-  font-family: "Courier New", Courier, monospace;
-  font-size: 0.85em;
   background: var(--bg);
 
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.85em;
   line-height: 1;
+  gap: 0;
+
+  padding: calc(var(--airiness) / 2) 0;
 
   min-height: fit-content;
   max-width: 400px;
@@ -211,7 +214,7 @@ footer {
   max-width: 100%;
   min-height: fit-content;
   overflow-x: visible;
-  white-space: nowrap;
+  white-space: preserve nowrap;
 }
 
 /* Grid Sections **************************************************************/
@@ -221,6 +224,20 @@ footer {
   font-size: 1.2em;
   line-height: 1;
   gap: 0;
+
+  padding: calc(var(--airiness) / 2) 0;
+
+  max-width: 400px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.cp-section[data-section="grid"] .cp-lyric-line {
+  min-width: 0;
+  max-width: 100%;
+  min-height: fit-content;
+  overflow-x: visible;
+  white-space: preserve nowrap;
 }
 
 /* Sections Numbering *********************************************************/
@@ -265,6 +282,7 @@ footer {
 
 .cp-chorus-ref::before {
   content: "Ref";
+  margin-right: 10px;
 }
 
 /* Section Accents ************************************************************/
@@ -474,7 +492,8 @@ button {
     display: none !important;
   }
 
-  .cp-section[data-section="tab"] {
+  .cp-section[data-section="tab"],
+  .cp-section[data-section="grid"] {
     max-width: stretch;
   }
 }
