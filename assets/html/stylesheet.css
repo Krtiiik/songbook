@@ -367,9 +367,11 @@ button {
 /* Toggle Boxes ***************************************************************/
 
 .toggled-box {
-  position: absolute;
-  top: 50px;
-  left: 0px;
+  position: fixed;
+  top: 100px;
+  left: calc(2 * var(--airiness));
+  right: calc(2 * var(--airiness));
+  width: fit-content;
 
   background: var(--bg);
   border: 2px solid gray;
@@ -403,6 +405,32 @@ button {
 
 #zoom-show {
   width: 4ch;
+}
+
+/* Chord diagrams *************************************************************/
+
+#chords-box {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+
+.chord-diagram-wrap {
+  width: 150px;
+
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: 600;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.chord-diagram-label {
+  color: var(--chord);
 }
 
 /* Seeks **********************************************************************/
@@ -482,6 +510,16 @@ button {
     left: 50%;
     height: fit-content;
     transform: translateX(-50%);
+  }
+
+  #chords-box {
+    width: 85%;
+    max-width: 85%;
+    min-width: 85%;
+    height: 85vh;
+    overflow-y: auto;
+    flex-direction: row;
+    align-content: flex-start;
   }
 
   #song-header-title {

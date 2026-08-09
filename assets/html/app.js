@@ -28,6 +28,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     setupTranspositions();
     setupSwipes();
     setupZoom();
+    setupChords();
 
     router();
 });
@@ -94,6 +95,7 @@ function loadSong(id) {
 function loadCurrentSong() {
     loadSong(songsIds[currentSongIndex]);
     transposeReset();
+    resetChordDiagrams();
 }
 
 function nextSong() {
@@ -311,6 +313,161 @@ function setupZoom() {
             !zoomToggleBtn.contains(event.target)
         ) {
             zoomBox.classList.add("hidden");
+        }
+    });
+}
+
+// Chord diagrams ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+let CHORD_DB = null;
+let renderedTransposition = null;
+const rootsOrdered = ['A#', 'C#', 'D#', 'F#', 'G#', 'A', 'B', 'C', 'D', 'E', 'F', 'G']
+
+async function loadChordDB() {
+    if (!CHORD_DB) {
+        const response = await fetch("assets/chords.json");
+        CHORD_DB = await response.json();
+    }
+}
+
+function getChord(chordName) {
+    if (!CHORD_DB) return null;
+
+    chordName = chordName.replace("♯", "#");
+
+    // Split root and suffix
+    const root = rootsOrdered.find((r) => chordName.startsWith(r))
+    const suffix = chordName.slice(root.length);
+
+    // Get root entry
+    const enharmonicRoots = { Bb: 'A#', Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#' };
+    const canonicalRoot = enharmonicRoots[root] || root;
+    const rootEntry = CHORD_DB[canonicalRoot];
+    if (!rootEntry) return null;
+
+    // Get suffix variants
+    const variants = rootEntry[suffix];
+    if (!variants || !Array.isArray(variants) || variants.length === 0) return null;
+
+    // Select the first variant
+    // In the future, we might show all the variants
+    const variant = variants[0];
+
+    // Add barres, if not present - otherwise SVGuitar dies
+    if (!variant.hasOwnProperty("barres")) {
+        variant.barres = [];
+    }
+
+    return variant;
+}
+
+function getSongChords() {
+    const chords = new Set();
+    document.querySelectorAll('.cp-chord').forEach(el => {
+        chords.add(el.textContent);
+    });
+    return Array.from(chords);
+}
+
+function renderChordDiagram(container, chordName) {
+    const cacheKey = "diagram_" + chordName;
+
+    // Use cached SVG if available
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+        container.innerHTML = cached;
+        return;
+    }
+
+    // Get chord from DB
+    const chord = getChord(chordName);
+    if (!chord) {
+        container.textContent = "No diagram";
+        return;
+    }
+
+    // Draw the chord diagram
+    new svguitar.SVGuitarChord(container)
+        .chord(chord)
+        .configure({
+            frets: 4,
+            tuning: ['E', 'A', 'D', 'G', 'B', 'e'],
+
+            fretLabelPosition: 'right',
+            fixedDiagramPosition: true,
+            showFretMarkers: true,
+
+            fingerSize: 0.9,
+            barreChordRadius: 0.6,
+
+            sidePadding: 0.20,
+            tuningsFontSize: 25,
+        })
+        .draw()
+
+    // Cache the SVG
+    const svg = container.innerHTML;
+    sessionStorage.setItem(cacheKey, svg);
+}
+
+async function populateChordsBox() {
+    const transpose = currentTranspose;
+
+    // If already rendered and same transposition, skip
+    if (renderedTransposition === transpose) {
+        return;
+    }
+
+    await loadChordDB();
+
+    const chordsBox = document.getElementById("chords-box");
+
+    // Clear old diagrams
+    chordsBox.innerHTML = "";
+
+    const chords = getSongChords();
+
+    // Render new diagrams
+    chords.forEach(chord => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "chord-diagram-wrap";
+
+        const label = document.createElement("div");
+        label.className = "chord-diagram-label";
+        label.textContent = chord;
+
+        renderChordDiagram(wrapper, chord);
+        wrapper.appendChild(label)
+
+        chordsBox.appendChild(wrapper);
+    });
+
+    // Save state
+    renderedTransposition = transpose;
+}
+
+function resetChordDiagrams() {
+    renderedTransposition = null;
+
+    const chordsBox = document.getElementById("chords-box");
+    chordsBox.innerHTML = "";
+}
+
+function setupChords() {
+    const chordsToggleBtn = document.getElementById("chords-toggle");
+    const chordsBox = document.getElementById("chords-box");
+
+    chordsToggleBtn.addEventListener("click", () => {
+        populateChordsBox();
+        chordsBox.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (event) => {
+        if (
+            !chordsBox.contains(event.target) &&
+            !chordsToggleBtn.contains(event.target)
+        ) {
+            chordsBox.classList.add("hidden");
         }
     });
 }
