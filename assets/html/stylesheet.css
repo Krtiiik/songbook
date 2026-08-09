@@ -15,6 +15,7 @@
   /* Sections */
   --accent-chorus: var(--accent);
   --accent-tab: var(--comment);
+  --accent-grid: var(--comment);
   --accent-comment: var(--comment);
 }
 
@@ -213,6 +214,15 @@ footer {
   white-space: nowrap;
 }
 
+/* Grid Sections **************************************************************/
+
+.cp-section[data-section="grid"] {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.2em;
+  line-height: 1;
+  gap: 0;
+}
+
 /* Sections Numbering *********************************************************/
 
 .cp-section[data-section="verse"] {
@@ -279,6 +289,10 @@ footer {
 
   .cp-section[data-section="tab"] {
     border-left-color: var(--accent-tab);
+  }
+
+  .cp-section[data-section="grid"] {
+    border-left-color: var(--accent-grid);
   }
 }
 
