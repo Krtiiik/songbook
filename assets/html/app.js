@@ -15,6 +15,8 @@ let songsIds = [];
 let songIdsIndices = {};
 let songsCount = 0;
 let currentSongIndex = 0;
+let songSearchMap = {};
+let searchFuse = null;
 
 // Load data on DOM ready
 window.addEventListener("DOMContentLoaded", async () => {
@@ -31,6 +33,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     setupChords();
     setupTuner();
     setupDarkmode();
+    setupSearch();
 
     router();
 });
@@ -63,6 +66,7 @@ function switchView(view) {
         case View.Song:
             document.getElementById("index-header").classList.toggle("hidden", true);
             document.getElementById("index-songs").classList.toggle("hidden", true);
+            document.getElementById("search-results").classList.toggle("hidden", true);
             document.getElementById("song-header").classList.toggle("hidden", false);
             document.getElementById("song-content").classList.toggle("hidden", false);
             break;
@@ -1011,6 +1015,105 @@ function setupDarkmode() {
             if (icon()) icon().className = 'bi bi-sun';
         } else {
             if (icon()) icon().className = 'bi bi-moon';
+        }
+    });
+}
+
+// Search ---------------------------------------------------------------------
+
+function buildSearchIndex() {
+    songSearchMap = {};
+    const records = songsIds.map((id) => {
+        const song = songs[id] || {};
+        const title = song.title || "";
+        const artist = song.artist || "";
+        const combined = `${title} ${artist}`.trim();
+        songSearchMap[combined] = id;
+        return {
+            id,
+            title,
+            artist,
+            combined,
+        };
+    });
+
+    searchFuse = new Fuse(records, {
+        keys: ["combined", "title", "artist"],
+        threshold: 0.35,
+        ignoreLocation: true,
+        ignoreDiacritics: true,
+    });
+}
+
+function searchSongs(query) {
+    const text = String(query || "").trim();
+    if (!text) {
+        return songsIds.slice();
+    }
+
+    if (!searchFuse) {
+        buildSearchIndex();
+    }
+
+    const results = searchFuse.search(text);
+    return results.map((result) => result.item.id);
+}
+
+function renderSearchResults(songIds) {
+    const wrapper = document.getElementById("search-results-list");
+    if (!wrapper) return;
+
+    wrapper.innerHTML = "";
+
+    songIds.forEach((id) => {
+        const song = songs[id];
+        if (!song) return;
+
+        const item = document.createElement("a");
+        item.href = `#${id}`;
+        item.className = "search-result-item";
+        item.innerHTML = `
+            <span class="index-song-title">${song.title}</span>
+            ${song.artist ? `<span class="index-song-artist">${song.artist}</span>` : ""}
+        `;
+
+        wrapper.appendChild(item);
+    });
+}
+
+function setupSearch() {
+    const searchToggleBtn = document.getElementById("search-toggle");
+    const searchResults = document.getElementById("search-results");
+    const searchInput = document.getElementById("search-input");
+    const indexSongs = document.getElementById("index-songs");
+
+    if (!searchToggleBtn || !searchResults || !searchInput) return;
+
+    buildSearchIndex();
+    renderSearchResults(searchSongs(""));
+
+    searchToggleBtn.addEventListener("click", () => {
+        searchResults.classList.toggle("hidden");
+        indexSongs.classList.toggle("hidden");
+        if (!searchResults.classList.contains("hidden")) {
+            searchInput.focus();
+            renderSearchResults(searchSongs(searchInput.value));
+        }
+    });
+
+    searchInput.addEventListener("input", (event) => {
+        renderSearchResults(searchSongs(event.target.value));
+    });
+
+    document.addEventListener("click", (event) => {
+        if (
+            !searchResults.contains(event.target) &&
+            !searchToggleBtn.contains(event.target)
+        ) {
+            if (!searchResults.classList.contains("hidden")) {
+                searchResults.classList.add("hidden");
+                indexSongs.classList.remove("hidden");
+            }
         }
     });
 }
