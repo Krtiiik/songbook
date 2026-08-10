@@ -40,7 +40,7 @@
                 <button id="transpose-up" class="button"><i class="bi bi-plus-circle"></i></button>
             </div>
 
-            <button id="zoom-toggle" class="button"><i class="bi bi-zoom-in"></i></button>
+            <button id="zoom-toggle" class="button"><i class="bi bi-alphabet-uppercase"></i></i></button>
             <div id="zoom-box" class="toggled-box hidden">
                 <button id="zoom-reset" class="button"><i class="bi bi-x-circle"></i></button>
                 <div id="zoom-show" class="control-show">100%</div>
@@ -50,6 +50,28 @@
 
             <button id="chords-toggle" class="button"><i class="bi bi-book"></i></button>
             <div id="chords-box" class="toggled-box hidden"></div>
+
+            <button id="tuner-toggle" class="button"><i class="bi bi-mic"></i></button>
+            <div id="tuner-box" class="toggled-box hidden">
+                <select id="tuner-instrument" class="control-select">
+                    <option value="guitar">Guitar 🎸</option>
+                    <option value="bass">Bass</option>
+                    <option value="ukulele">Ukulele</option>
+                    <option value="violin">Violin 🎻</option>
+                    <option value="cello">Cello</option>
+                    <option value="banjo">Banjo 🪕</option>
+                    <option value="mandolin">Mandolin</option>
+                    <option value="chromatic">Chromatic 🎶</option>
+                </select>
+                <div id="tuner-progress-wrap">
+                    <div id="tuner-target-note">-</div>
+                    <div id="tuner-bar">
+                        <div id="tuner-bar-fill"></div>
+                        <div id="tuner-bar-marker"></div>
+                    </div>
+                    <div id="tuner-progress-label">-</div>
+                </div>
+            </div>
 
             <button id="seek-previous" class="button-seek"><i class="bi bi-arrow-bar-left"></i></button>
             <button id="seek-next" class="button-seek"><i class="bi bi-arrow-bar-right"></i></button>

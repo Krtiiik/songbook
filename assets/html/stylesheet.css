@@ -436,6 +436,109 @@ button {
   color: var(--chord);
 }
 
+/* Tuner **********************************************************************/
+
+:root {
+  --tune-off: #777;
+  --tune-good: #32cd32;
+  --tune-ok: #f4b400;
+  --tune-bad: #d73b3b;
+}
+
+.bi-mic-fill {
+  color: darkred;
+}
+
+#tuner-box {
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+}
+
+.control-select {
+  width: 100%;
+  padding: var(--airiness);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#tuner-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--airiness) / 2);
+  width: 100%;
+  align-items: center;
+}
+
+#tuner-target-note {
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+#tuner-target-note.tuned {
+  color: var(--tune-good);
+  transition: color 0.2s ease-out;
+}
+
+#tuner-bar {
+  position: relative;
+  width: 100%;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(220,220,220,1) 0%, rgba(240,240,240,1) 100%);
+  overflow: hidden;
+}
+
+#tuner-bar-marker {
+  position: absolute;
+  top: -4px;
+  width: 5px;
+  height: 26px;
+  border-radius: 999px;
+  background: #333;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: left 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: left;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+#tuner-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  border-radius: inherit;
+  background: var(--tune-off);
+  transition: background-color 0.2s ease;
+  will-change: background-color;
+}
+
+#tuner-bar-fill.good {
+  background: var(--tune-good);
+}
+
+#tuner-bar-fill.ok {
+  background: var(--tune-ok);
+}
+
+#tuner-bar-fill.bad {
+  background: var(--tune-bad);
+}
+
+#tuner-progress-label {
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+#tuner-progress-label:empty:after {
+   content: '\200b';
+}
+
 /* Seeks **********************************************************************/
 
 .button-seek {
@@ -513,11 +616,11 @@ button {
     left: 50%;
     height: fit-content;
     transform: translateX(-50%);
+    max-width: 85%;
   }
 
   #chords-box {
     width: 85%;
-    max-width: 85%;
     min-width: 85%;
     height: 85vh;
   }

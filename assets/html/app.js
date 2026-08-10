@@ -29,6 +29,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     setupSwipes();
     setupZoom();
     setupChords();
+    setupTuner();
 
     router();
 });
@@ -468,6 +469,517 @@ function setupChords() {
             !chordsToggleBtn.contains(event.target)
         ) {
             chordsBox.classList.add("hidden");
+        }
+    });
+}
+
+// Guitar tuner ---------------------------------------------------------------
+// Tuner configuration (keep minimal and centralized)
+const GUITAR_TUNER_SETTINGS = {
+    referenceFrequency: 440,
+    rmsThreshold: 0.01,
+    autocorrelateThreshold: 0.002,
+    fftSize: 2048,
+    minClosenessWidthPercent: 20,
+    listeningColor: "#888",
+    goodColor: "#4caf50",
+    okColor: "#f4b400",
+    badColor: "#d62828",
+};
+
+const TUNER_NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+const TUNER_INSTRUMENTS = {
+    guitar: {
+        name: "Guitar",
+        strings: ["E2", "A2", "D3", "G3", "B3", "E4"],
+    },
+    bass: {
+        name: "Bass",
+        strings: ["E1", "A1", "D2", "G2"],
+    },
+    ukulele: {
+        name: "Ukulele",
+        strings: ["G4", "C4", "E4", "A4"],
+    },
+    violin: {
+        name: "Violin",
+        strings: ["G3", "D4", "A4", "E5"],
+    },
+    cello: {
+        name: "Cello",
+        strings: ["C2", "G2", "D3", "A3"],
+    },
+    banjo: {
+        name: "Banjo",
+        strings: ["G4", "D3", "G3", "B3", "D4"],
+    },
+    mandolin: {
+        name: "Mandolin",
+        strings: ["G3", "D4", "A4", "E5"],
+    },
+    chromatic: {
+        name: "Chromatic",
+        strings: [],
+    },
+};
+
+function noteStringToFrequency(noteString, referenceFrequency = GUITAR_TUNER_SETTINGS.referenceFrequency) {
+    const match = /^([A-G]#?)(\d+)$/.exec(noteString);
+    if (!match) return null;
+    const note = match[1];
+    const octave = Number(match[2]);
+    const noteIndex = TUNER_NOTE_NAMES.indexOf(note);
+    if (noteIndex === -1) return null;
+
+    const semitoneFromA4 = noteIndex - 9 + (octave - 4) * 12;
+    return referenceFrequency * Math.pow(2, semitoneFromA4 / 12);
+}
+
+function buildInstrumentFrequencies() {
+    Object.keys(TUNER_INSTRUMENTS).forEach((key) => {
+        const instrument = TUNER_INSTRUMENTS[key];
+        instrument.stringFrequencies = instrument.strings.map((name) => ({
+            name,
+            frequency: noteStringToFrequency(name),
+        }));
+    });
+}
+
+buildInstrumentFrequencies();
+
+const GuitarTuner = (function () {
+    const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+    let audioContext = null;
+    let analyser = null;
+    let sourceNode = null;
+    let mediaStream = null;
+    let rafId = null;
+    let progressElement = null;
+    let onUpdateCallback = null;
+    let referenceFrequency = GUITAR_TUNER_SETTINGS.referenceFrequency;
+    let currentInstrumentKey = 'guitar';
+    let lastProgressUpdateTime = 0;
+    const progressUpdateThrottleMs = 100;
+    let currentInstrument = TUNER_INSTRUMENTS[currentInstrumentKey];
+
+    const state = {
+        isListening: false,
+        frequency: null,
+        note: null,
+        octave: null,
+        cents: null,
+        nearestString: null,
+        nearestStringCents: null,
+        closeness: 0,
+    };
+
+    function setInstrument(key) {
+        if (key && key in TUNER_INSTRUMENTS) {
+            currentInstrumentKey = key;
+            currentInstrument = TUNER_INSTRUMENTS[key];
+        }
+    }
+
+    function getNearestTarget(frequency) {
+        if (!frequency || frequency <= 0 || !currentInstrument || !currentInstrument.stringFrequencies?.length) {
+            return null;
+        }
+
+        const nearest = currentInstrument.stringFrequencies.reduce((best, string) => {
+            const diffCents = Math.round(1200 * Math.log2(frequency / string.frequency));
+            const distance = Math.abs(diffCents);
+            if (!best || distance < best.distance) {
+                return {
+                    stringName: string.name,
+                    stringFrequency: string.frequency,
+                    cents: diffCents,
+                    distance,
+                };
+            }
+            return best;
+        }, null);
+
+        if (!nearest) {
+            return null;
+        }
+
+        return nearest;
+    }
+
+    function setProgressElementById(elementId) {
+        progressElement = document.getElementById(elementId);
+        notifyUpdate();
+    }
+
+    function updateProgressElement() {
+        if (!progressElement) {
+            return;
+        }
+
+        const now = Date.now();
+        if (state.isListening && state.frequency && now - lastProgressUpdateTime < progressUpdateThrottleMs) {
+            return;
+        }
+        lastProgressUpdateTime = now;
+    }
+
+    function notifyUpdate() {
+        if (typeof onUpdateCallback === "function") {
+            onUpdateCallback({ ...state });
+        }
+        updateProgressElement();
+    }
+
+    function getClosestNote(frequency) {
+        if (!frequency || frequency <= 0) {
+            return null;
+        }
+
+        const noteNumber = 12 * Math.log2(frequency / referenceFrequency) + 49;
+        const rounded = Math.round(noteNumber);
+        const cents = Math.round((noteNumber - rounded) * 100);
+        const noteIndex = ((rounded + 11) % 12 + 12) % 12;
+        const octave = Math.floor((rounded + 8) / 12);
+
+        return {
+            note: NOTE_NAMES[noteIndex],
+            octave,
+            cents,
+        };
+    }
+
+    function autoCorrelate(buffer, sampleRate) {
+        const size = buffer.length;
+        let sum = 0;
+        for (let i = 0; i < size; i += 1) {
+            const value = buffer[i];
+            sum += value * value;
+        }
+
+        const rms = Math.sqrt(sum / size);
+        if (rms < GUITAR_TUNER_SETTINGS.rmsThreshold) {
+            return -1;
+        }
+
+        let r1 = 0;
+        let r2 = size - 1;
+        const threshold = GUITAR_TUNER_SETTINGS.autocorrelateThreshold;
+
+        for (let i = 0; i < size / 2; i += 1) {
+            if (Math.abs(buffer[i]) < threshold) {
+                r1 = i;
+                break;
+            }
+        }
+
+        for (let i = 1; i < size / 2; i += 1) {
+            if (Math.abs(buffer[size - i]) < threshold) {
+                r2 = size - i;
+                break;
+            }
+        }
+
+        const trimmed = buffer.slice(r1, r2);
+        const trimmedSize = trimmed.length;
+        if (trimmedSize < 2) {
+            return -1;
+        }
+
+        const correlation = new Array(trimmedSize).fill(0);
+        for (let lag = 0; lag < trimmedSize; lag += 1) {
+            for (let i = 0; i + lag < trimmedSize; i += 1) {
+                correlation[lag] += trimmed[i] * trimmed[i + lag];
+            }
+        }
+
+        let d = 0;
+        while (d < trimmedSize - 1 && correlation[d] > correlation[d + 1]) {
+            d += 1;
+        }
+
+        let bestLag = -1;
+        let bestVal = -Infinity;
+        for (let i = d; i < trimmedSize; i += 1) {
+            if (correlation[i] > bestVal) {
+                bestVal = correlation[i];
+                bestLag = i;
+            }
+        }
+
+        if (bestLag <= 0) {
+            return -1;
+        }
+
+        const x1 = correlation[bestLag - 1] || 0;
+        const x2 = correlation[bestLag];
+        const x3 = correlation[bestLag + 1] || 0;
+        const a = (x1 + x3 - 2 * x2) / 2;
+        const b = (x3 - x1) / 2;
+        const shift = a ? b / (2 * a) : 0;
+
+        return sampleRate / (bestLag + shift);
+    }
+
+    function analyze() {
+        if (!analyser || !audioContext) {
+            return;
+        }
+
+        const buffer = new Float32Array(analyser.fftSize);
+        analyser.getFloatTimeDomainData(buffer);
+
+        const frequency = autoCorrelate(buffer, audioContext.sampleRate);
+        if (frequency > 0) {
+            const note = getClosestNote(frequency);
+            const nearest = getNearestTarget(frequency);
+
+            state.frequency = Math.round(frequency * 100) / 100;
+            state.note = note.note;
+            state.octave = note.octave;
+            state.cents = note.cents;
+
+            if (nearest) {
+                state.nearestString = nearest.stringName;
+                state.nearestStringCents = nearest.cents;
+                state.closeness = Math.max(0, Math.min(100, 100 - Math.abs(nearest.cents)));
+            } else {
+                state.nearestString = null;
+                state.nearestStringCents = null;
+                state.closeness = Math.max(0, Math.min(100, 100 - Math.abs(note.cents)));
+            }
+        } else {
+            state.frequency = null;
+            state.note = null;
+            state.octave = null;
+            state.cents = null;
+            state.nearestString = null;
+            state.nearestStringCents = null;
+            state.closeness = 0;
+        }
+
+        notifyUpdate();
+        rafId = requestAnimationFrame(analyze);
+    }
+
+    async function start() {
+        if (state.isListening) {
+            return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.error("Microphone access is not supported by this browser.");
+            return;
+        }
+
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = GUITAR_TUNER_SETTINGS.fftSize;
+            sourceNode = audioContext.createMediaStreamSource(mediaStream);
+            sourceNode.connect(analyser);
+
+            state.isListening = true;
+            notifyUpdate();
+            analyze();
+        } catch (error) {
+            console.error("Unable to start tuner:", error);
+            state.isListening = false;
+            notifyUpdate();
+        }
+    }
+
+    function stop() {
+        if (!state.isListening) {
+            return;
+        }
+
+        cancelAnimationFrame(rafId);
+        rafId = null;
+
+        if (sourceNode) {
+            try {
+                sourceNode.disconnect();
+            } catch (err) {
+                // ignore
+            }
+            sourceNode = null;
+        }
+
+        if (analyser) {
+            try {
+                analyser.disconnect();
+            } catch (err) {
+                // ignore
+            }
+            analyser = null;
+        }
+
+        if (mediaStream) {
+            mediaStream.getTracks().forEach((track) => track.stop());
+            mediaStream = null;
+        }
+
+        if (audioContext) {
+            audioContext.close().catch(() => {});
+            audioContext = null;
+        }
+
+        state.isListening = false;
+        state.frequency = null;
+        state.note = null;
+        state.octave = null;
+        state.cents = null;
+        notifyUpdate();
+    }
+
+    function init(options = {}) {
+        if (options.progressElementId) {
+            setProgressElementById(options.progressElementId);
+        }
+
+        if (typeof options.onUpdate === "function") {
+            onUpdateCallback = options.onUpdate;
+        }
+
+        if (typeof options.referenceFrequency === "number" && options.referenceFrequency > 0) {
+            referenceFrequency = options.referenceFrequency;
+        }
+
+        if (typeof options.instrument === "string") {
+            setInstrument(options.instrument);
+        }
+
+        notifyUpdate();
+    }
+
+    function setOnUpdate(callback) {
+        onUpdateCallback = typeof callback === "function" ? callback : null;
+    }
+
+    function setReferenceFrequency(value) {
+        if (typeof value === "number" && value > 0) {
+            referenceFrequency = value;
+        }
+    }
+
+    function isListening() {
+        return state.isListening;
+    }
+
+    function getState() {
+        return { ...state };
+    }
+
+    return {
+        init,
+        start,
+        stop,
+        setProgressElementById,
+        setOnUpdate,
+        setReferenceFrequency,
+        setInstrument,
+        isListening,
+        getState,
+    };
+}());
+
+function setupTuner() {
+    const tunerToggleBtn = document.getElementById('tuner-toggle');
+    const tunerToggleIcon = tunerToggleBtn?.querySelector('i');
+    const tunerBox = document.getElementById('tuner-box');
+    const tunerInstrumentSelect = document.getElementById('tuner-instrument');
+    const tunerTargetNote = document.getElementById('tuner-target-note');
+    const tunerProgressLabel = document.getElementById('tuner-progress-label');
+    const tunerBarMarker = document.getElementById('tuner-bar-marker');
+    const tunerBarFill = document.getElementById('tuner-bar-fill');
+
+    if (!tunerToggleBtn || !tunerBox || !tunerInstrumentSelect || !tunerTargetNote || !tunerProgressLabel || !tunerBarMarker || !tunerBarFill) return;
+
+    let latestTunerState = null;
+    let uiRenderScheduled = false;
+    let lastUiRenderTime = 0;
+    const uiRenderThrottleMs = 90;
+
+    function renderTunerUI(timestamp) {
+        uiRenderScheduled = false;
+        if (!latestTunerState) {
+            return;
+        }
+
+        if (timestamp - lastUiRenderTime < uiRenderThrottleMs) {
+            scheduleTunerUI();
+            return;
+        }
+        lastUiRenderTime = timestamp;
+
+        const s = latestTunerState;
+        const targetNote = s.nearestString || (s.note ? `${s.note}${s.octave}` : '-');
+        tunerTargetNote.textContent = targetNote;
+
+        const centsValue = s.nearestStringCents !== null ? s.nearestStringCents : (s.cents || 0);
+        const markerPercent = Math.max(0, Math.min(100, 50 + centsValue));
+        tunerBarMarker.style.left = `${markerPercent}%`;
+
+        tunerBarFill.classList.remove('good', 'ok', 'bad');
+        if (s.nearestString) {
+            const closeness = Math.max(0, Math.min(100, 100 - Math.abs(centsValue)));
+            tunerBarFill.classList.add(closeness > 90 ? 'good' : closeness > 60 ? 'ok' : 'bad');
+        }
+
+        if (s.isListening && s.frequency) {
+            const centsText = centsValue >= 0 ? `+${centsValue}` : `${centsValue}`;
+            tunerProgressLabel.textContent = `${centsText}¢`;
+        } else {
+            tunerProgressLabel.textContent = '-';
+        }
+
+        if (tunerToggleIcon) {
+            tunerToggleIcon.className = s.isListening ? 'bi bi-mic-fill' : 'bi bi-mic';
+        }
+
+        tunerTargetNote.classList.toggle('tuned', s.closeness > 90);
+    }
+
+    function scheduleTunerUI() {
+        if (uiRenderScheduled) {
+            return;
+        }
+        uiRenderScheduled = true;
+        requestAnimationFrame(renderTunerUI);
+    }
+
+    GuitarTuner.init({ progressElementId: 'tuner-bar-fill', instrument: tunerInstrumentSelect.value });
+    GuitarTuner.setOnUpdate((s) => {
+        latestTunerState = s;
+        scheduleTunerUI();
+    });
+
+    tunerInstrumentSelect.addEventListener('change', (event) => {
+        const instrument = event.target.value;
+        GuitarTuner.setInstrument(instrument);
+        GuitarTuner.init({ progressElementId: 'tuner-bar-fill', instrument });
+    });
+
+    tunerToggleBtn.addEventListener('click', (event) => {
+        const turningOn = !GuitarTuner.isListening();
+        if (turningOn) {
+            tunerBox.classList.remove('hidden');
+            GuitarTuner.start();
+        } else {
+            tunerBox.classList.add('hidden');
+            GuitarTuner.stop();
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!tunerBox.contains(event.target) &&
+            !tunerToggleBtn.contains(event.target))
+        {
+            tunerBox.classList.add('hidden');
+            GuitarTuner.stop();
         }
     });
 }
