@@ -19,6 +19,12 @@
   --accent-comment: var(--comment);
 }
 
+.darkmode {
+  --bg: #181818;
+  --text: #aaaaaa;
+  --comment: #666666;
+}
+
 /* GLOBAL ################################################################### */
 
 body {
@@ -459,7 +465,9 @@ button {
   width: 100%;
   padding: var(--airiness);
   border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--text);
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 #tuner-progress-wrap {
@@ -571,6 +579,12 @@ button {
   right: 0;
   border-top-left-radius: 25px;
   border-bottom-left-radius: 25px;
+}
+
+/* Darkmode *******************************************************************/
+
+.darkmode svg {
+   filter: invert(100%);
 }
 
 /* Small Device ***************************************************************/

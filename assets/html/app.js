@@ -30,6 +30,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     setupZoom();
     setupChords();
     setupTuner();
+    setupDarkmode();
 
     router();
 });
@@ -980,6 +981,23 @@ function setupTuner() {
         {
             tunerBox.classList.add('hidden');
             GuitarTuner.stop();
+        }
+    });
+}
+
+// Lightmode Darkmode ---------------------------------------------------------
+
+function setupDarkmode() {
+    const darkmodeToggleBtn = document.getElementById("darkmode-toggle");
+
+    const icon = () => darkmodeToggleBtn.querySelector('i');
+
+    darkmodeToggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("darkmode");
+        if (document.body.classList.contains('darkmode')) {
+            if (icon()) icon().className = 'bi bi-sun';
+        } else {
+            if (icon()) icon().className = 'bi bi-moon';
         }
     });
 }
