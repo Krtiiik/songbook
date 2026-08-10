@@ -116,6 +116,19 @@ function setupSeeks() {
 
     if (seekPreviousBtn) seekPreviousBtn.addEventListener("click", prevSong);
     if (seekNextBtn) seekNextBtn.addEventListener("click", nextSong);
+
+    // On desktop, allow left/right arrow keys to seek previous/next.
+    // If the device supports touch, avoid adding keyboard seeks to prevent
+    // interfering with mobile behavior.
+    if (!('ontouchstart' in window)) {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSong();
+            } else if (e.key === 'ArrowRight') {
+                nextSong();
+            }
+        });
+    }
 }
 
 // Swipe gestures --------------------------------------------------------------
