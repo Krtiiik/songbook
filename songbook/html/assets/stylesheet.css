@@ -371,7 +371,9 @@ button {
   top: 100px;
   left: calc(2 * var(--airiness));
   right: calc(2 * var(--airiness));
+  max-height: 80vh;
   width: fit-content;
+  height: fit-content;
 
   background: var(--bg);
   border: 2px solid gray;
@@ -415,6 +417,7 @@ button {
   justify-content: center;
   align-items: flex-start;
   align-content: flex-start;
+  overflow-y: auto;
 }
 
 .chord-diagram-wrap {
@@ -517,9 +520,6 @@ button {
     max-width: 85%;
     min-width: 85%;
     height: 85vh;
-    overflow-y: auto;
-    flex-direction: row;
-    align-content: flex-start;
   }
 
   #song-header-title {
