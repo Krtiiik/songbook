@@ -92,6 +92,16 @@ function loadSong(id) {
     else {
         document.getElementById("song-meta-capo").textContent = "";
     }
+    if (song.source) {
+        if (song.url) {
+            document.getElementById("song-meta-source").innerHTML =
+                `<a href="${song.url}"><i class="bi bi-box-arrow-up-left"></i><span>${song.source}</span></a>`;
+        } else {
+            document.getElementById("song-meta-source").innerHTML = song.source;
+        }
+    } else {
+        document.getElementById("song-meta-source").innerHTML = "";
+    }
     document.getElementById("song-content").innerHTML = song.content;
     document.title = song.title;
 

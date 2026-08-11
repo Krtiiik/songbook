@@ -98,6 +98,10 @@ def build_html_songs_info(songs: list[Song]):
             "capo": song.meta.capo,
             "content": rendered_content,
         }
+        if "source" in song.meta.meta:
+            songs_info[song_id]["source"] = song.meta.meta["source"]
+        if "url" in song.meta.meta:
+            songs_info[song_id]["url"] = song.meta.meta["url"]
 
     return songs_info
 
@@ -123,7 +127,7 @@ def create_html_index(songs_info: dict, output_dir: Path, templates_dir: Path):
 
 def get_songs(songs_dir: Path):
     """Get all .cho files in the songs directory."""
-    cho_files = sorted(songs_dir.glob("*.cho"))
+    cho_files = sorted(songs_dir.rglob("*.cho"), key=lambda f: f.name)
     if not cho_files:
         print("No .cho files found in songs folder.")
         exit(1)

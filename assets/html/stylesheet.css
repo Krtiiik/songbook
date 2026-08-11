@@ -83,6 +83,11 @@ h2 {
   text-align: center;
 }
 
+a {
+  color: var(--text);
+  text-decoration: none;
+}
+
 /* INDEX #################################################################### */
 
 #index-songs {
@@ -110,9 +115,6 @@ h2 {
   flex-wrap: wrap;
   align-items: baseline;
   column-gap: calc(var(--airiness) / 2);
-
-  color: var(--text);
-  text-decoration: none;
 }
 
 /* Search *********************************************************************/
@@ -136,6 +138,7 @@ h2 {
   gap: var(--songs-gap);
   justify-content: flex-start;
   align-items: stretch;
+  width: stretch;
 }
 
 #search-box {
@@ -204,6 +207,12 @@ footer {
   gap: var(--airiness);
 
   font-size: 1.5em;
+}
+
+#song-meta-source a {
+  display: flex;
+  gap: calc(var(--airiness) / 2);
+  text-decoration: underline;
 }
 
 /* Lines, Chords, Lyrics ******************************************************/
@@ -698,6 +707,10 @@ button {
 
   #song-header-title {
     grid-column-start: 2;
+  }
+
+  #song-header-meta {
+    flex-direction: column;
   }
 
   .button-seek {
