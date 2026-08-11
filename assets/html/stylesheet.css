@@ -50,7 +50,8 @@ body {
 
   padding: var(--airiness) calc(2 * var(--airiness));
   width: stretch;
-  height: 85px;
+  min-height: 85px;
+  max-height: fit-content;
 
   box-shadow: 0 2px 4px 1px gray;
   z-index: 1;
@@ -79,6 +80,7 @@ h1 {
 h2 {
   margin: 0;
   font-weight: 300;
+  text-align: center;
 }
 
 /* INDEX #################################################################### */
@@ -91,6 +93,7 @@ h2 {
   gap: var(--songs-gap);
 
   padding: var(--airiness);
+  max-width: 500px;
 }
 
 .index-song-title {
@@ -106,7 +109,7 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: calc(var(--airiness) / 2);
+  column-gap: calc(var(--airiness) / 2);
 
   color: var(--text);
   text-decoration: none;
@@ -116,6 +119,7 @@ h2 {
 
 #search-results {
   width: stretch;
+  max-width: 500px;
 
   display: flex;
   flex-direction: column;
@@ -193,6 +197,13 @@ footer {
   font-size: 2em;
   font-weight: 700;
   text-align: center;
+}
+
+#song-header-meta {
+  display: flex;
+  gap: var(--airiness);
+
+  font-size: 1.5em;
 }
 
 /* Lines, Chords, Lyrics ******************************************************/
@@ -640,6 +651,19 @@ button {
   #song-header {
     padding-left: calc(2 * var(--airiness));
     padding-right: calc(2 * var(--airiness));
+  }
+
+  #song-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+  }
+
+  #song-meta-capo {
+    margin-top: var(--airiness);
+  }
+  #song-meta-capo:empty {
+    margin-top: 0px;
   }
 
   #song-header-buttons {
