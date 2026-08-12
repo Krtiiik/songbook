@@ -1127,3 +1127,15 @@ function setupSearch() {
         }
     });
 }
+
+// Search ---------------------------------------------------------------------
+
+function setupSearch() {
+    const randomSongBtn = document.getElementById("random-song");
+
+    randomSongBtn.addEventListener("click", () => {
+        const randomSongIndex = Math.floor(Math.random() * songsIds.length);
+        currentSongIndex = randomSongIndex;
+        loadCurrentSong();
+    });
+}
