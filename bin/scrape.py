@@ -101,7 +101,7 @@ def jradl_to_chordpro(song):
 
         # Normalize lyrics
         lyrics = lyrics.replace("\r", "")  # line endings
-        lyrics = re.sub(r"\\h\{[^}]+\}\s*", "", lyrics)
+        lyrics = re.sub(r"\\h\{[^}]+\} *", "", lyrics)
 
         if section_type == SectionType.Chorus and not lyrics:
             section_type = SectionType.ChorusRepeat
@@ -154,6 +154,8 @@ if __name__ == "__main__":
 
     songs = jradl_scrape_songs()
     for song in songs:
+        if "klaun" in song["title"]:
+            pass
         song_chordpro = jradl_to_chordpro(song)
         song_authors = song["author"].replace(" / ", ", ").replace("/", ", ").replace("?", "")
         song_file = args.output / f"{song["title"]} - {song_authors}.cho"
