@@ -127,7 +127,10 @@ def create_html_index(songs_info: dict, output_dir: Path, templates_dir: Path):
 
 def get_songs(songs_dir: Path):
     """Get all .cho files in the songs directory."""
-    cho_files = sorted(songs_dir.rglob("*.cho"), key=lambda f: f.name)
+    import locale
+    locale.setlocale(locale.LC_COLLATE, "cs_CZ.UTF-8")
+    cho_files = sorted(songs_dir.rglob("*.cho"), key=lambda f: locale.strxfrm(f.name))
+
     if not cho_files:
         print("No .cho files found in songs folder.")
         exit(1)
