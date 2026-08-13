@@ -34,6 +34,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     setupTuner();
     setupDarkmode();
     setupSearch();
+    setupRandomSong();
 
     router();
 });
@@ -1130,7 +1131,7 @@ function setupSearch() {
 
 // Search ---------------------------------------------------------------------
 
-function setupSearch() {
+function setupRandomSong() {
     const randomSongBtn = document.getElementById("random-song");
 
     randomSongBtn.addEventListener("click", () => {
