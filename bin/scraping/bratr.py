@@ -6,14 +6,18 @@ import urllib.request
 
 from pylatexenc.latexwalker import LatexCharsNode, LatexGroupNode, LatexMacroNode, LatexWalker
 
-from common import sanitize_filename
-
 
 BRATR_URL = "https://raw.githubusercontent.com/martisekpetr/bratruv-zpevnik/master/zpevnik.tex"
 
 
 parser = argparse.ArgumentParser(description="Scrape the Bratr songbook")
 parser.add_argument("--output", default=Path("songs") / "bratr", type=Path, help="Output directory for scraped songs")
+
+
+def sanitize_filename(value: str) -> str:
+    value = re.sub(r'[<>:"/\\|?*]+', " ", value)
+    value = re.sub(r"\s+", " ", value).strip()
+    return value or "untitled"
 
 
 def latex_group_to_text(node, tex: str):

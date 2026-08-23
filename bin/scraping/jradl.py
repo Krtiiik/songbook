@@ -7,8 +7,6 @@ import shutil
 
 from playwright.sync_api import sync_playwright
 
-from common import sanitize_filename
-
 
 JRADL_URL = "https://zpevnik.jradl.cz"
 
@@ -25,6 +23,12 @@ def scrape_songs_data():
         page.wait_for_timeout(5000)
         local_storage = page.evaluate("() => window.localStorage")
         return json.loads(local_storage["songs"])
+
+
+def sanitize_filename(value: str) -> str:
+    value = re.sub(r'[<>:"/\\|?*]+', " ", value)
+    value = re.sub(r"\s+", " ", value).strip()
+    return value or "untitled"
 
 
 class SectionType(Enum):
