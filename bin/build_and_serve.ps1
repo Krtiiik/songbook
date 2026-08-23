@@ -5,15 +5,6 @@ param(
 $scriptDir = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
 $projectRoot = Resolve-Path (Join-Path $scriptDir "..")
 
-# Run scrape.py
-$scrapeScript = Join-Path $projectRoot "bin" "scrape.py"
-Write-Host "Running scrape.py from $projectRoot..."
-$scrapeProc = Start-Process -FilePath py -ArgumentList $scrapeScript -WorkingDirectory $projectRoot -NoNewWindow -Wait -PassThru
-if ($scrapeProc.ExitCode -ne 0) {
-    Write-Error "scrape.py failed with exit code $($scrapeProc.ExitCode)"
-    exit $scrapeProc.ExitCode
-}
-
 # Run build.py
 $buildScript = Join-Path $projectRoot "bin" "build.py"
 Write-Host "Running build.py from $projectRoot..."

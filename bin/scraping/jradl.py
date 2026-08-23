@@ -7,16 +7,21 @@ import shutil
 
 from playwright.sync_api import sync_playwright
 
+from .common import sanitize_filename
 
-parser = argparse.ArgumentParser(description="Build the songbook.")
+
+JRADL_URL = "https://zpevnik.jradl.cz"
+
+
+parser = argparse.ArgumentParser(description="Scrape the JRadl songbook")
 parser.add_argument("--output", default=Path("songs") / "jradl", type=Path, help="Output directory for scraped songs")
 
 
-def jradl_scrape_songs():
+def scrape_songs_data():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        page.goto("https://zpevnik.jradl.cz")
+        page.goto(JRADL_URL)
         page.wait_for_timeout(5000)
         local_storage = page.evaluate("() => window.localStorage")
         return json.loads(local_storage["songs"])
@@ -89,18 +94,14 @@ def jradl_to_chordpro(song):
     lines.append(r"{meta: source JRadl}")
     lines.append(f"{{meta: url https://zpevnik.jradl.cz/{song["id"]}}}")
 
-    lines.append("")  # blank line after header
+    lines.append("")
 
-    # --- Verses ---
     for verse in song.get("verses", []):
         name = verse.get("name", "").strip()
         lyrics = verse.get("lyrics", "").rstrip()
 
-        # Section type
         section_type, section_label = get_section_type(name)
-
-        # Normalize lyrics
-        lyrics = lyrics.replace("\r", "")  # line endings
+        lyrics = lyrics.replace("\r", "")
         lyrics = re.sub(r"\\h\{[^}]+\} *", "", lyrics)
 
         if section_type == SectionType.Chorus and not lyrics:
@@ -139,25 +140,27 @@ def jradl_to_chordpro(song):
                 lines.append(r"{start_of_outro}")
                 lines.append(r"{end_of_outro}")
 
-        lines.append("")  # blank line between verses
+        lines.append("")
 
-    # Final output
     return "\n".join(lines).strip() + "\n"
+
+
+def scrape(output: Path):
+    songs = scrape_songs_data()
+
+    if output.exists():
+        shutil.rmtree(output)
+    output.mkdir(parents=True, exist_ok=True)
+
+    for song in songs:
+        song_chordpro = jradl_to_chordpro(song)
+        song_authors = sanitize_filename(song["author"])
+        song_title = sanitize_filename(song["title"])
+        song_file = output / f"{song_title} - {song_authors}.cho"
+        with open(song_file, "w", encoding="utf8") as f:
+            f.write(song_chordpro)
 
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
-
-    if args.output.exists():
-        shutil.rmtree(args.output)
-    args.output.mkdir()
-
-    songs = jradl_scrape_songs()
-    for song in songs:
-        if "klaun" in song["title"]:
-            pass
-        song_chordpro = jradl_to_chordpro(song)
-        song_authors = song["author"].replace(" / ", ", ").replace("/", ", ").replace("?", "")
-        song_file = args.output / f"{song["title"]} - {song_authors}.cho"
-        with open(song_file, "w", encoding="utf8") as f:
-            f.write(song_chordpro)
+    scrape(args.output)

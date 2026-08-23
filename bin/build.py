@@ -16,6 +16,7 @@ parser.add_argument("--songs", default="songs", type=Path, help="Directory conta
 parser.add_argument("--output", default="songbook", type=Path, help="Output directory for built songbooks")
 parser.add_argument("--templates", default="templates", type=Path, help="Directory containing HTML templates")
 parser.add_argument("--assets", default="assets", type=Path, help="Directory containing asset files")
+parser.add_argument("--scrape", default=True, type=argparse.BooleanOptionalAction, help="Scrapes online songbooks.")
 
 
 SEMI_TO_NAME = build_chord_semi_to_name("standard")
@@ -88,6 +89,9 @@ def build_html_songs_info(songs: list[Song]):
         # WARNING: Should we obtain songs with identical titles, we need to add artists to id
         song_id = slugify_czech(song.meta.title)
 
+        if song_id in songs_info:  # Probably built from a different songbook already
+            continue
+
         # Render song content with chordpro
         rendered_content = render(song, SEMI_TO_NAME, format="html")
 
@@ -149,6 +153,7 @@ def get_songs(songs_dir: Path):
 
     return songs
 
+# Main ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def setup(args):
     if args.output.exists():
@@ -160,6 +165,11 @@ if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
 
     setup(args)
+
+    if args.scrape:
+        from scraping import bratr, jradl
+        jradl.scrape(args.songs / "jradl")
+        bratr.scrape(args.songs / "bratr")
 
     songs = get_songs(args.songs)
 
