@@ -160,14 +160,13 @@ function handleSwipe() {
     const diffY = touchEndY - touchStartY;
     const timeDiff = touchEndTime - touchStartTime;
 
-    // Maximum Y swipe distance
-    if (Math.abs(diffY) > 40) return;
+    if (Math.abs(diffY) > Math.abs(diffX)) return;
 
     // Minimum X swipe distance
-    if (Math.abs(diffX) < 150) return;
+    if (Math.abs(diffX) < 100) return;
 
-    // Maximum swipe duration: 0.2 seconds
-    if (timeDiff > 200) return;
+    // Maximum swipe duration: 0.4 seconds
+    if (timeDiff > 400) return;
 
     if (diffX < 0) {
         // Swipe LEFT → next song
