@@ -36,10 +36,7 @@ jobs:
           python -m pip install chordpro-renderer[pdf,babel,flask]
           python -m pip install playwright
           python -m playwright install chromium
-
-      - name: Scrape songs
-        run: |
-          python bin/scrape.py
+          python -m pip install pylatexenc
 
       - name: Build site
         run: |

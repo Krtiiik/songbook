@@ -1,15 +1,12 @@
 import argparse
-from enum import Enum, auto
-import json
 from pathlib import Path
 import re
 import shutil
 import urllib.request
 
-from playwright.sync_api import sync_playwright
 from pylatexenc.latexwalker import LatexCharsNode, LatexGroupNode, LatexMacroNode, LatexWalker
 
-from .common import sanitize_filename
+from common import sanitize_filename
 
 
 BRATR_URL = "https://raw.githubusercontent.com/martisekpetr/bratruv-zpevnik/master/zpevnik.tex"

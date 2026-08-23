@@ -7,7 +7,7 @@ import shutil
 
 from playwright.sync_api import sync_playwright
 
-from .common import sanitize_filename
+from common import sanitize_filename
 
 
 JRADL_URL = "https://zpevnik.jradl.cz"

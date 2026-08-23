@@ -16,7 +16,7 @@ parser.add_argument("--songs", default="songs", type=Path, help="Directory conta
 parser.add_argument("--output", default="songbook", type=Path, help="Output directory for built songbooks")
 parser.add_argument("--templates", default="templates", type=Path, help="Directory containing HTML templates")
 parser.add_argument("--assets", default="assets", type=Path, help="Directory containing asset files")
-parser.add_argument("--scrape", default=True, type=argparse.BooleanOptionalAction, help="Scrapes online songbooks.")
+parser.add_argument("--scrape", default=True, action=argparse.BooleanOptionalAction, help="Scrapes online songbooks.")
 
 
 SEMI_TO_NAME = build_chord_semi_to_name("standard")
