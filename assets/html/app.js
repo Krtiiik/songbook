@@ -208,6 +208,7 @@ let currentTranspose = 0;
 
 function transposeChord(chord, semitones) {
     try {
+        chord = chord.replace("♯", "#");
         var chord = chordMagic.parse(chord);
         var chord = chordMagic.transpose(chord, semitones);
         return chordMagic.prettyPrint(chord, { naming: sharpsOnly });
