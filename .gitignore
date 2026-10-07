@@ -1,1 +1,3 @@
-songbook/
+dist/
+.cache/
+__pycache__/

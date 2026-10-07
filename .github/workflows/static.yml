@@ -29,18 +29,23 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install chordpro-renderer[pdf,babel,flask]
-          python -m pip install playwright
-          python -m playwright install chromium
-          python -m pip install pylatexenc
+          python -m pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
+      # Scraped songs from the last build: used when a source cannot be scraped
+      - name: Restore scraped songs
+        uses: actions/cache@v4
+        with:
+          path: .cache/sources
+          key: sources-${{ github.run_id }}
+          restore-keys: sources-
 
       - name: Build site
-        run: |
-          python bin/build.py
+        run: python bin/build.py
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -48,7 +53,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'songbook/html'
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment

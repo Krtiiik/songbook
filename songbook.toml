@@ -1,0 +1,29 @@
+# Songbook configuration
+
+title = "Krtkův Zpěvník"
+
+# Song sources, in priority order: when a song exists in several sources,
+# the first one listed here opens by default (the app remembers the reader's pick).
+#
+#   id       short name, used in overrides and URLs (#song-id/source-id)
+#   label    name shown in the app
+#   path     folder with .cho files (relative to this file); scraped sources use .cache/sources/<id>
+#   scraper  module in bin/scraping/ that downloads the songs on every build
+#   url      link to the original songbook
+
+[[sources]]
+id = "own"
+label = "Krtek"
+path = "songs"
+
+[[sources]]
+id = "jradl"
+label = "JRadl"
+scraper = "jradl"
+url = "https://zpevnik.jradl.cz"
+
+[[sources]]
+id = "bratr"
+label = "Bratrův zpěvník"
+scraper = "bratr"
+url = "https://bratruvzpevnik.cz"

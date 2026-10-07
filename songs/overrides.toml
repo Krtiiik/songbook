@@ -1,0 +1,15 @@
+# Manual corrections to automatic song matching.
+#
+# Songs match automatically when their titles are equal (ignoring case, accents and punctuation).
+# Songs are referred to as "<source id>:<file name>", where the file name is relative to the source folder
+# (see songbook.toml; scraped files are in .cache/sources/<source id>/ after a build).
+
+# Versions of the same song whose titles differ.
+merge = [
+    ["jradl:Kocábka (Stará archa) - Spirituál kvintet.cho", "bratr:Stará archa - Spirituál kvintet.cho"],
+    ["jradl:Zabili - Balada pro banditu.cho", "bratr:Zabili, zabili - Miloš Štědroň.cho"],
+]
+
+# Songs that share a title with a different song: they never match automatically.
+separate = [
+]
