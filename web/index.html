@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zpěvník</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/song.css">
+    <script src="vendor/svguitar.umd.js"></script>
+    <script type="module" src="js/main.js"></script>
+</head>
+
+<body data-view="loading">
+    <!-- Song list ------------------------------------------------------------------>
+    <header id="index-header" class="header">
+        <div class="toolbar">
+            <button id="search-toggle" class="button" title="Hledat"><i class="bi bi-search"></i></button>
+        </div>
+        <h1 id="index-title"></h1>
+        <div class="toolbar">
+            <a id="pdf-link" class="button hidden" href="songbook.pdf" title="PDF"><i class="bi bi-file-earmark-pdf"></i></a>
+            <button class="button theme-toggle" title="Světlý / tmavý režim"><i class="bi bi-moon"></i><i class="bi bi-sun"></i></button>
+        </div>
+    </header>
+
+    <main id="index">
+        <div id="search-box" class="hidden">
+            <input id="search-input" type="search" autocomplete="off" placeholder="Název nebo interpret">
+        </div>
+        <nav id="song-list"></nav>
+    </main>
+
+    <!-- Song ----------------------------------------------------------------------->
+    <header id="song-header" class="header">
+        <div id="song-toolbar" class="toolbar">
+            <a class="button" href="#" title="Seznam písní"><i class="bi bi-music-note-list"></i></a>
+
+            <button id="random-song" class="button" title="Náhodná píseň"><i class="bi bi-shuffle"></i></button>
+
+            <button id="transpose-toggle" class="button" title="Transpozice"><i class="bi bi-sliders"></i></button>
+            <div id="transpose-box" class="popover hidden">
+                <button id="transpose-reset" class="button"><i class="bi bi-record-circle"></i></button>
+                <div id="transpose-show" class="control-value">0</div>
+                <button id="transpose-down" class="button"><i class="bi bi-dash-circle"></i></button>
+                <button id="transpose-up" class="button"><i class="bi bi-plus-circle"></i></button>
+            </div>
+
+            <button id="zoom-toggle" class="button" title="Velikost písma"><i class="bi bi-alphabet-uppercase"></i></button>
+            <div id="zoom-box" class="popover hidden">
+                <button id="zoom-reset" class="button"><i class="bi bi-x-circle"></i></button>
+                <div id="zoom-show" class="control-value">100%</div>
+                <button id="zoom-out" class="button"><i class="bi bi-zoom-out"></i></button>
+                <button id="zoom-in" class="button"><i class="bi bi-zoom-in"></i></button>
+            </div>
+
+            <button id="chords-toggle" class="button" title="Akordy"><i class="bi bi-book"></i></button>
+            <div id="chords-box" class="popover hidden"></div>
+
+            <button id="tuner-toggle" class="button" title="Ladička"><i class="bi bi-mic"></i><i class="bi bi-mic-fill"></i></button>
+            <div id="tuner-box" class="popover hidden">
+                <select id="tuner-instrument" class="control-select">
+                    <option value="guitar">Kytara 🎸</option>
+                    <option value="bass">Baskytara</option>
+                    <option value="ukulele">Ukulele</option>
+                    <option value="violin">Housle 🎻</option>
+                    <option value="cello">Violoncello</option>
+                    <option value="banjo">Banjo 🪕</option>
+                    <option value="mandolin">Mandolína</option>
+                    <option value="chromatic">Chromatická 🎶</option>
+                </select>
+                <div id="tuner-target-note">-</div>
+                <div id="tuner-bar">
+                    <div id="tuner-bar-fill"></div>
+                    <div id="tuner-bar-marker"></div>
+                </div>
+                <div id="tuner-label">-</div>
+            </div>
+
+            <button class="button theme-toggle" title="Světlý / tmavý režim"><i class="bi bi-moon"></i><i class="bi bi-sun"></i></button>
+        </div>
+
+        <div id="song-heading">
+            <h1 id="song-title"></h1>
+            <h2 id="song-artist"></h2>
+        </div>
+
+        <div id="song-meta">
+            <span id="song-capo"></span>
+            <span id="song-sources"></span>
+        </div>
+    </header>
+
+    <main id="song-content"></main>
+
+    <button id="seek-previous" class="seek" title="Předchozí"><i class="bi bi-arrow-bar-left"></i></button>
+    <button id="seek-next" class="seek" title="Další"><i class="bi bi-arrow-bar-right"></i></button>
+</body>
+
+</html>

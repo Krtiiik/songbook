@@ -1,0 +1,180 @@
+/* Song content *****************************************************************
+ * Classes come from chordpro-renderer's HTML output:
+ *   .cp-section[data-section=verse|chorus|tab|grid|...]  > .cp-section-label
+ *   .cp-line > .cp-unit > .cp-chord[data-chord] + .cp-lyric
+ *   .cp-lyric-line (text without chords), .cp-chorus-ref, .cp-comment(-italic|-box)
+ ******************************************************************************/
+
+/* On wide screens sections flow into columns */
+#song-content {
+  flex: 1 1 auto;
+
+  padding: var(--airiness) 100px;
+  box-sizing: border-box;
+  min-height: 0;
+  width: fit-content;
+  max-width: 100%;
+  overflow: auto; /* columns that don't fit scroll sideways */
+
+  display: flex;
+  flex-flow: column wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  row-gap: var(--airiness);
+  column-gap: calc(2 * var(--airiness));
+}
+
+/* Lines, chords, lyrics ******************************************************/
+
+.cp-line {
+  word-wrap: break-word;
+}
+
+.cp-unit {
+  display: inline-block;
+}
+
+.cp-chord {
+  display: block;
+  color: var(--chord);
+  font-weight: 700;
+  margin-right: 5px;
+}
+
+.cp-lyric,
+.cp-lyric-only,
+.cp-lyric-line {
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* Sections *******************************************************************/
+
+.cp-section {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+/* Left border accent (comments can also be inside sections, hence the >) */
+#song-content> :is(.cp-section, .cp-chorus-ref, .cp-comment) {
+  padding-left: calc(var(--airiness) - 2px);
+  margin-left: 2px;
+  border-left: 4px solid var(--bg);
+}
+
+#song-content :is(.cp-section[data-section="chorus"], .cp-chorus-ref) {
+  border-left-color: var(--accent-chorus);
+}
+
+#song-content .cp-section[data-section="tab"] {
+  border-left-color: var(--accent-tab);
+}
+
+#song-content .cp-section[data-section="grid"] {
+  border-left-color: var(--accent-grid);
+}
+
+#song-content .cp-comment-box {
+  border-left-color: var(--accent-comment);
+}
+
+/* Labels: a section's own label (1., R1:, Rec:) or an automatic verse number,
+   placed in the margin left of the section */
+.cp-section[data-section="verse"] {
+  counter-increment: verse;
+}
+
+.cp-section-label,
+.cp-section[data-section="verse"]:has(> .cp-section-label:empty)::before {
+  position: absolute;
+  right: calc(100% + 6px);
+  top: 0;
+  white-space: nowrap;
+
+  color: var(--comment);
+  font-weight: 700;
+}
+
+.cp-section[data-section="verse"]::before {
+  content: counter(verse);
+}
+
+.cp-section-label:empty,
+.cp-section[data-section="verse"]:has(> .cp-section-label:not(:empty))::before {
+  display: none;
+}
+
+.cp-chorus-ref {
+  font-weight: 700;
+  color: var(--comment);
+}
+
+.cp-chorus-ref::before {
+  content: "Ref";
+  margin-right: 10px;
+}
+
+/* Tabs and grids *************************************************************/
+
+.cp-section:is([data-section="tab"], [data-section="grid"]) {
+  font-family: var(--font-mono);
+  line-height: 1;
+  gap: 0;
+
+  padding-top: calc(var(--airiness) / 2);
+  padding-bottom: calc(var(--airiness) / 2);
+
+  max-width: 400px;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  .cp-lyric-line {
+    white-space: preserve nowrap;
+  }
+}
+
+.cp-section[data-section="tab"] {
+  font-size: 0.85em;
+}
+
+.cp-section[data-section="grid"] {
+  font-size: 1.2em;
+}
+
+/* Comments *******************************************************************/
+
+.cp-comment {
+  color: var(--comment);
+  font-style: italic;
+}
+
+/* Not shown ******************************************************************/
+
+.cp-header,
+.cp-break,
+.cp-grid-on,
+.cp-grid-off,
+.cp-transpose,
+.cp-columns {
+  display: none;
+}
+
+/* Small devices: one column ***************************************************/
+
+@media (max-width: 600px), (max-height: 600px) {
+  #song-content {
+    flex-flow: column;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 65vh;
+    padding: var(--airiness) var(--airiness) 100px calc(2 * var(--airiness));
+  }
+
+  .cp-section:is([data-section="tab"], [data-section="grid"]) {
+    box-sizing: border-box;
+    max-width: calc(100% - 2px);
+  }
+}

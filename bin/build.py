@@ -15,7 +15,7 @@ import json
 import shutil
 from pathlib import Path
 
-from chordpro import build_chord_semi_to_name, render, render_many
+from chordpro import Song, build_chord_semi_to_name, parse, render, render_many
 
 import library
 
@@ -69,7 +69,8 @@ def version_ids(group: library.SongGroup) -> list[str]:
 
 def version_info(version_id: str, version: library.Version) -> dict:
     meta = version.song.meta
-    key = meta.key[0] if isinstance(meta.key, list) and meta.key else meta.key
+    first = lambda value: (value[0] if value else None) if isinstance(value, list) else value
+    key = first(meta.key)
     return {
         "id": version_id,
         "source": version.source,
@@ -77,8 +78,23 @@ def version_info(version_id: str, version: library.Version) -> dict:
         "artist": version.artist or None,
         "key": key or None,
         "capo": meta.capo or None,
-        "url": meta.meta.get("url"),
+        "url": first(meta.meta.get("url")),
     }
+
+
+_default_labels: dict[str, str] = {}
+
+
+def drop_default_labels(song: Song):
+    """The parser labels unlabelled sections with their kind ("Verse", "Chorus"); keep only labels from the song."""
+    for section in song.body:
+        if not (hasattr(section, "kind") and hasattr(section, "label")):
+            continue  # not a section
+        if section.kind not in _default_labels:
+            probe = parse(f"{{start_of_{section.kind}}}\nx\n{{end_of_{section.kind}}}")
+            _default_labels[section.kind] = probe.body[0].label
+        if section.label == _default_labels[section.kind]:
+            section.label = ""
 
 
 def write_json(path: Path, data):
@@ -87,9 +103,10 @@ def write_json(path: Path, data):
         json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
 
 
-def build_data(config: library.Config, groups: list[library.SongGroup], output: Path):
+def build_data(config: library.Config, groups: list[library.SongGroup], output: Path, pdf: bool):
     index = {
         "title": config.title,
+        "pdf": pdf,
         "sources": {s.id: {"label": s.label, "url": s.url} for s in config.sources},
         "songs": [],
     }
@@ -98,6 +115,7 @@ def build_data(config: library.Config, groups: list[library.SongGroup], output: 
         versions = []
         for version_id, version in zip(version_ids(group), group.versions):
             info = version_info(version_id, version)
+            drop_default_labels(version.song)
             info["html"] = render(version.song, SEMI_TO_NAME, format="html")
             versions.append(info)
 
@@ -136,7 +154,7 @@ def main(args):
         shutil.rmtree(args.output)
     shutil.copytree(args.web, args.output)
 
-    build_data(config, groups, args.output)
+    build_data(config, groups, args.output, pdf=args.pdf)
     if args.pdf:
         build_pdf(groups, args.output / "songbook.pdf")
 
