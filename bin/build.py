@@ -150,9 +150,11 @@ def main(args):
     groups = library.group_versions(versions, config.sources, library.load_overrides(args.overrides))
     print(f"{len(versions)} versions of {len(groups)} songs.")
 
-    if args.output.exists():
-        shutil.rmtree(args.output)
-    shutil.copytree(args.web, args.output)
+    # Empty the output folder rather than deleting it, so a server running in it survives a rebuild
+    args.output.mkdir(parents=True, exist_ok=True)
+    for child in args.output.iterdir():
+        shutil.rmtree(child) if child.is_dir() else child.unlink()
+    shutil.copytree(args.web, args.output, dirs_exist_ok=True)
 
     build_data(config, groups, args.output, pdf=args.pdf)
     if args.pdf:
