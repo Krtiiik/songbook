@@ -12,7 +12,7 @@ JRADL_URL = "https://zpevnik.jradl.cz"
 
 
 parser = argparse.ArgumentParser(description="Scrape the JRadl songbook")
-parser.add_argument("--output", default=Path("songs") / "jradl", type=Path, help="Output directory for scraped songs")
+parser.add_argument("--output", default=Path(".cache") / "sources" / "jradl", type=Path, help="Output directory for scraped songs")
 
 
 def scrape_songs_data():
@@ -20,9 +20,11 @@ def scrape_songs_data():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         page.goto(JRADL_URL)
-        page.wait_for_timeout(5000)
-        local_storage = page.evaluate("() => window.localStorage")
-        return json.loads(local_storage["songs"])
+        # The app downloads its songs into localStorage after load
+        page.wait_for_function("() => window.localStorage.getItem('songs')", timeout=60_000)
+        songs = page.evaluate("() => window.localStorage.getItem('songs')")
+        browser.close()
+        return json.loads(songs)
 
 
 def sanitize_filename(value: str) -> str:
@@ -89,20 +91,20 @@ def jradl_to_chordpro(song):
     lines = []
 
     # --- Header ---
-    if "title" in song:
+    if song.get("title"):
         lines.append(f"{{title: {song['title']}}}")
-    if "author" in song:
+    if song.get("author"):
         lines.append(f"{{artist: {song['author']}}}")
     if "capo" in song and song["capo"]:
         lines.append(f"{{capo: {song['capo']}}}")
     lines.append(r"{meta: source JRadl}")
-    lines.append(f"{{meta: url https://zpevnik.jradl.cz/{song["id"]}}}")
+    lines.append(f"{{meta: url {JRADL_URL}/{song['id']}}}")
 
     lines.append("")
 
     for verse in song.get("verses", []):
-        name = verse.get("name", "").strip()
-        lyrics = verse.get("lyrics", "").rstrip()
+        name = (verse.get("name") or "").strip()
+        lyrics = (verse.get("lyrics") or "").rstrip()
 
         section_type, section_label = get_section_type(name)
         lyrics = lyrics.replace("\r", "")
@@ -158,8 +160,8 @@ def scrape(output: Path):
 
     for song in songs:
         song_chordpro = jradl_to_chordpro(song)
-        song_authors = sanitize_filename(song["author"])
-        song_title = sanitize_filename(song["title"])
+        song_authors = sanitize_filename(song.get("author") or "")
+        song_title = sanitize_filename(song.get("title") or "")
         song_file = output / f"{song_title} - {song_authors}.cho"
         with open(song_file, "w", encoding="utf8") as f:
             f.write(song_chordpro)

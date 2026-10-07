@@ -1,17 +1,21 @@
+"""Scrape Bratrův zpěvník (LaTeX source) into ChordPro files.
+
+Macro semantics follow the upstream web app's parser:
+https://github.com/martisekpetr/bratruv-zpevnik/blob/master/app/src/helpers/parseTex.js
+"""
+
 import argparse
 from pathlib import Path
 import re
 import shutil
 import urllib.request
 
-from pylatexenc.latexwalker import LatexCharsNode, LatexGroupNode, LatexMacroNode, LatexWalker
-
 
 BRATR_URL = "https://raw.githubusercontent.com/martisekpetr/bratruv-zpevnik/master/zpevnik.tex"
 
 
 parser = argparse.ArgumentParser(description="Scrape the Bratr songbook")
-parser.add_argument("--output", default=Path("songs") / "bratr", type=Path, help="Output directory for scraped songs")
+parser.add_argument("--output", default=Path(".cache") / "sources" / "bratr", type=Path, help="Output directory for scraped songs")
 
 
 def sanitize_filename(value: str) -> str:
@@ -20,347 +24,385 @@ def sanitize_filename(value: str) -> str:
     return value or "untitled"
 
 
-def latex_group_to_text(node, tex: str):
-    if isinstance(node, (LatexCharsNode, LatexGroupNode, LatexMacroNode)):
-        return tex[node.pos: node.pos + node.len]
-    return ""
+# Reading TeX ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def strip_comments(tex: str) -> str:
+    """Remove % comments (but not \\%). Like TeX, a comment also swallows the line break and the next line's indent."""
+    return re.sub(r"(?<!\\)%[^\n]*\n?[ \t]*", "", tex)
 
 
-def iter_latex_nodes(nodes):
-    for node in nodes:
-        yield node
-        if hasattr(node, "nodelist"):
-            yield from iter_latex_nodes(node.nodelist)
-
-
-def scrape_songs_data(url: str):
-    with urllib.request.urlopen(url, timeout=30) as response:
-        tex = response.read().decode("utf-8", errors="replace")
-
-    root_nodes, _, _ = LatexWalker(tex).get_latex_nodes()
-    all_nodes = list(iter_latex_nodes(root_nodes))
-    songs = []
-    i = 0
-    while i < len(all_nodes):
-        node = all_nodes[i]
-        if isinstance(node, LatexMacroNode) and node.macroname == "song":
-            args = []
-            j = i + 1
-            while j < len(all_nodes) and len(args) < 5:
-                current = all_nodes[j]
-                if isinstance(current, LatexGroupNode):
-                    args.append(latex_group_to_text(current, tex))
-                j += 1
-            if len(args) >= 5:
-                title = normalize_latex_literal(args[0]).strip() or "Untitled"
-                artist = normalize_latex_literal(args[1]).strip()
-                body = args[4].strip()
-                if len(body) >= 2 and body[0] == "{" and body[-1] == "}":
-                    body = body[1:-1]
-                songs.append({
-                    "title": title,
-                    "artist": artist,
-                    "body": body,
-                })
-                i = j
-                continue
-        i += 1
-
-    return songs
-
-
-def read_braced_segment(text: str, start_index: int) -> tuple[str, int]:
-    """Read a { ... } block with nested braces from the opening brace at start_index."""
+def read_delimited(text: str, start: int, open_char: str, close_char: str) -> tuple[str, int]:
+    """Read a balanced block starting at the opening char at `start`. Returns (inner text, index after block)."""
     depth = 0
-    result: list[str] = []
-    i = start_index
+    i = start
     while i < len(text):
         ch = text[i]
-        if ch == "{":
+        if ch == "\\":
+            i += 2  # skip escaped chars such as \{ or \}
+            continue
+        if ch == open_char:
             depth += 1
-            if depth > 1:
-                result.append(ch)
-        elif ch == "}":
+        elif ch == close_char:
             depth -= 1
             if depth == 0:
-                return "".join(result), i + 1
-            result.append(ch)
-        else:
-            result.append(ch)
+                return text[start + 1:i], i + 1
         i += 1
-    raise ValueError("Unterminated braced segment")
+    raise ValueError(f"Unterminated {open_char}{close_char} block at {start}")
 
 
-def read_bracketed_segment(text: str, start_index: int) -> tuple[str, int]:
-    """Read a [ ... ] block with nested brackets from the opening bracket at start_index."""
-    depth = 0
-    result: list[str] = []
-    i = start_index
-    while i < len(text):
-        ch = text[i]
-        if ch == "[":
-            depth += 1
-            if depth > 1:
-                result.append(ch)
-        elif ch == "]":
-            depth -= 1
-            if depth == 0:
-                return "".join(result), i + 1
-            result.append(ch)
-        else:
-            result.append(ch)
+def skip_spaces(text: str, i: int) -> int:
+    """Skip spaces, allowing at most one line break (a blank line ends macro arguments in TeX)."""
+    newline_seen = False
+    while i < len(text) and text[i] in " \t\n":
+        if text[i] == "\n":
+            if newline_seen:
+                break
+            newline_seen = True
         i += 1
-    raise ValueError("Unterminated bracketed segment")
+    return i
 
 
-def parse_tex_command(text: str, index: int) -> tuple[str, str | None, str | None, int]:
-    if text[index] != "\\":
-        raise ValueError("parse_tex_command expects a backslash")
+def read_group(text: str, i: int) -> tuple[str | None, int]:
+    """Read a {group} argument, if one follows."""
+    j = skip_spaces(text, i)
+    if j < len(text) and text[j] == "{":
+        return read_delimited(text, j, "{", "}")
+    return None, i
 
-    i = index + 1
-    while i < len(text) and (text[i].isalpha() or text[i] in "@_"):
-        i += 1
-    command = text[index + 1 : i]
 
-    optional = None
+def read_optional(text: str, i: int) -> tuple[str | None, int]:
+    """Read an [optional] argument, if one follows directly."""
     if i < len(text) and text[i] == "[":
-        optional, i = read_bracketed_segment(text, i)
-
-    content = None
-    if i < len(text) and text[i] == "{":
-        content, i = read_braced_segment(text, i)
-
-    return command, optional, content, i
+        return read_delimited(text, i, "[", "]")
+    return None, i
 
 
-def normalize_latex_literal(value: str) -> str:
-    value = re.sub(r"\\[A-Za-z]+(?:\[[^\]]*\])?", "", value)
-    value = value.replace("\\sharp", "#")
-    value = value.replace("\\flat", "b")
-    value = value.replace("\\textbf", "")
-    value = value.replace("\\emph", "")
-    value = value.replace("\\uv", "")
-    value = value.replace("\\", "")
-    value = value.replace("$", "")
-    value = value.replace("{", "").replace("}", "")
-    value = value.replace("~", " ")
-    value = value.replace("\r", "")
-    return value.strip()
+def read_groups(text: str, i: int, count: int) -> tuple[list[str], int]:
+    groups = []
+    for _ in range(count):
+        group, i = read_group(text, i)
+        groups.append(group or "")
+    return groups, i
 
 
-def chord_base_name(symbol: str) -> str:
-    mapping = {
-        "A": "A",
-        "Am": "Am",
-        "B": "B",
-        "Bm": "Bm",
-        "C": "C",
-        "Cm": "Cm",
-        "D": "D",
-        "Dm": "Dm",
-        "E": "E",
-        "Em": "Em",
-        "F": "F",
-        "Fm": "Fm",
-        "G": "G",
-        "Gm": "Gm",
-        "H": "B",
-        "Hm": "Bm",
-        "Csm": "C#m",
-        "Dsm": "D#m",
-        "Esm": "E#m",
-        "Fsm": "F#m",
-        "Gsm": "G#m",
-        "Asm": "A#m",
-        "Bsm": "B#m",
-    }
-    return mapping.get(symbol, symbol)
+DIMENSION = re.compile(r"\s*=?\s*-?\d*\.?\d+\s*(?:pt|em|ex|mm|cm|in|bp|sp|px)?")
 
 
-def chord_from_tex(command: str, optional: str | None) -> str:
-    base = chord_base_name(command)
-    variant = normalize_latex_literal(optional or "")
-    if not variant:
-        return base
-
-    if variant.startswith("/"):
-        return f"{base}{variant}"
-
-    if "/" in variant:
-        left, right = variant.split("/", 1)
-        if left:
-            return f"{base}{left}/{right}"
-        return f"{base}/{right}"
-
-    return f"{base}{variant}"
+def skip_dimension(text: str, i: int) -> int:
+    match = DIMENSION.match(text, i)
+    return match.end() if match else i
 
 
-def render_tex_to_chordpro(tex: str) -> str:
-    result: list[str] = []
+# Converting to ChordPro ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Chord macros from gtrcrd: root, optional s(harp)/b(flat), optional m(inor). Czech H is English B.
+CHORD_MACRO = re.compile(r"(?P<root>[A-H])(?P<accidental>[sb]?)(?P<minor>m?)")
+
+SYMBOLS = {
+    "ldots": "...", "dots": "...", "ldotp": ".",
+    "times": "×", "sharp": "#", "flat": "b", "downarrow": "↓",
+    "textendash": "–", "textemdash": "—", "quad": " ", "qquad": " ",
+    "rpt": " :|", "revrpt": "|: ", "hfill": " ",
+}
+
+# Commands dropped together with this many {group} arguments (after an optional [..] argument)
+DROPPED = {
+    "noexport": 1,  # print-only content
+    "toftagthis": 1, "includegraphics": 1, "linespread": 1, "hspace": 1, "vspace": 1,
+    "fontsize": 2, "setlength": 2, "rule": 2, "raisebox": 1,
+    "chord": 3,  # gchords diagram
+}
+
+# Commands whose last {group} argument is rendered as text (other arguments dropped)
+CONTENT = {
+    "textbf": 1, "emph": 1, "textsf": 1, "textsl": 1, "textit": 1, "mbox": 1,
+    "noprint": 1, "printchords": 1, "hidechords": 1,  # web shows all of these
+    "textls": 1, "scalebox": 2,
+}
+
+# Commands followed by a dimension (`\hskip 1em`, `\leftskip=5pt`)
+DIMENSIONED = {"hskip", "vskip", "leftskip", "rightskip", "parindent", "parskip", "crdheight", "columnsep"}
+
+# Environments whose whole body is dropped
+DROPPED_ENVIRONMENTS = {"figure", "music"}
+
+
+def chord_from_macro(match: re.Match, variant: str | None) -> str:
+    root = "B" if match["root"] == "H" else match["root"]
+    accidental = {"s": "#", "b": "b", "": ""}[match["accidental"]]
+    minor = match["minor"]
+    variant = convert_inline(variant or "").replace(" ", "")
+    extension, slash, bass = variant.partition("/")
+    if bass.startswith("H"):
+        bass = "B" + bass[1:]
+    return f"{root}{accidental}{minor}{extension}{slash}{bass}"
+
+
+def convert_inline(tex: str) -> str:
+    """Convert a short TeX fragment (chord variant, title) to plain text."""
+    return re.sub(r"\s+", " ", convert(tex)).strip()
+
+
+def convert_math(tex: str) -> str:
+    """Convert the tiny subset of math used in the songbook ($\\sharp$, $^{4\\times}$, $\\sfrac{3}{4}$)."""
+    tex = re.sub(r"\\sfrac\s*\{([^}]*)\}\s*\{([^}]*)\}", r"\1/\2", tex)
+    tex = tex.replace("^", "")
+    return convert(tex).strip()
+
+
+def convert(tex: str) -> str:
+    """Convert a TeX song body to ChordPro text (section markers are opened but not closed)."""
+    out: list[str] = []
     i = 0
     while i < len(tex):
-        if tex[i] == "\\":
-            command, optional, content, next_index = parse_tex_command(tex, i)
+        ch = tex[i]
 
-            if command in {"printchords"}:
-                if content:
-                    result.append(render_tex_to_chordpro(content))
-                i = next_index
+        if ch == "\\":
+            # Control symbols: \\ line break, \% \& \# \{ \} escapes, \, \  spaces
+            if i + 1 < len(tex) and not tex[i + 1].isalpha():
+                symbol = tex[i + 1]
+                i += 2
+                if symbol == "\\":
+                    _, i = read_optional(tex, i)
+                    out.append("\n")
+                    # The source also breaks the line after \\, keep just one line break
+                    j = i
+                    while j < len(tex) and tex[j] in " \t":
+                        j += 1
+                    if j < len(tex) and tex[j] == "\n":
+                        i = j + 1
+                elif symbol in ",~ ":
+                    out.append(" ")
+                else:
+                    out.append(symbol)
                 continue
 
-            if command in {"verse", "chorus", "bridge", "intro", "outro", "interlude", "instrumental"}:
-                section_type = {
-                    "verse": "verse",
-                    "chorus": "chorus",
-                    "bridge": "bridge",
-                    "intro": "intro",
-                    "outro": "outro",
-                    "interlude": "interlude",
-                    "instrumental": "instrumental",
-                }[command]
-                result.append(f"{{start_of_{section_type}}}\n")
-                i = next_index
+            match = re.match(r"[A-Za-z@]+", tex[i + 1:])
+            name = match.group(0)
+            i += 1 + len(name)
+
+            if chord := CHORD_MACRO.fullmatch(name):
+                variant, i = read_optional(tex, i)
+                lyric, i = read_group(tex, i)
+                out.append(f"[{chord_from_macro(chord, variant)}]")
+                if lyric:
+                    out.append(convert(lyric))
                 continue
 
-            if command == "capo":
-                capo = normalize_latex_literal(content or "")
-                if capo:
-                    result.append(f"{{capo: {capo}}}")
-                i = next_index
+            if name == "CHORD":
+                (label, _), i = read_groups(tex, i, 2)
+                out.append(f" {convert_inline(label)} ")
                 continue
 
-            if command == "textbf":
-                if content:
-                    result.append(normalize_latex_literal(content))
-                i = next_index
+            if name == "verse":
+                label, i = read_group(tex, i)
+                label = convert_inline(label or "")
+                out.append(f"\n{{start_of_verse: {label}.}}\n" if label else "\n{start_of_verse}\n")
                 continue
 
-            if command == "uv":
-                if content:
-                    result.append(f'"{normalize_latex_literal(content)}"')
-                i = next_index
+            if name == "chorus":
+                _, i = read_group(tex, i)  # usually an empty {}
+                out.append("\n{start_of_chorus: R:}\n")
                 continue
 
-            if command in {"clearpage", "medskip", "vskip", "hskip", "smallskip", "raggedcolumns", "centering", "hspace", "vspace", "noindent", "parskip", "vfill", "newpage"}:
-                i = next_index
-                while i < len(tex) and tex[i].isspace():
-                    i += 1
-                while i < len(tex) and not tex[i].isspace() and tex[i] != "\\" and tex[i] not in "\r\n":
-                    i += 1
+            if name == "chorusAlt":
+                (label, _), i = read_groups(tex, i, 2)
+                out.append(f"\n{{start_of_chorus: {convert_inline(label)}}}\n")
                 continue
 
-            if command == "setlength":
-                i = next_index
-                while i < len(tex) and tex[i].isspace():
-                    i += 1
-                if i < len(tex) and tex[i] == "{":
-                    _, i = read_braced_segment(tex, i)
-                while i < len(tex) and tex[i].isspace():
-                    i += 1
-                if i < len(tex) and tex[i] == "{":
-                    _, i = read_braced_segment(tex, i)
+            if name == "rec":
+                content, i = read_group(tex, i)
+                out.append(f"\n{{start_of_verse: Rec:}}\n{convert(content or '')}")
                 continue
 
-            if command == "crdheight":
-                i = next_index
-                while i < len(tex) and tex[i] not in "\r\n":
-                    i += 1
+            if name == "capo":
+                capo, i = read_group(tex, i)
+                out.append(f"\n{{capo: {convert_inline(capo or '')}}}\n")
                 continue
 
-            if command in {"ldots", "ldotp", "textemdash", "textendash", "dots", "quad"}:
-                result.append({"ldots": "...", "ldotp": ".", "textemdash": "—", "textendash": "-", "dots": "...", "quad": " "}.get(command, ""))
-                i = next_index
+            if name == "uv":
+                content, i = read_group(tex, i)
+                out.append(f"„{convert(content or '')}“")
                 continue
 
-            if command in {"revrpt", "rpt"}:
-                result.append("{comment: Refrén}")
-                i = next_index
+            if name == "optVerse":
+                groups, i = read_groups(tex, i, 4)
+                out.append(f"({convert(groups[3]).strip()})")
                 continue
 
-            if command in {"A", "Am", "B", "Bm", "C", "Cm", "D", "Dm", "E", "Em", "F", "Fm", "G", "Gm", "H", "Hm", "Csm", "Dsm", "Esm", "Fsm", "Gsm", "Asm", "Bsm"}:
-                value = chord_from_tex(command, optional)
-                result.append(f"[{value}]")
-                if content:
-                    result.append(render_tex_to_chordpro(content))
-                i = next_index
+            if name == "sfrac":
+                (numerator, denominator), i = read_groups(tex, i, 2)
+                out.append(f"{convert_inline(numerator)}/{convert_inline(denominator)}")
                 continue
 
-            if content:
-                result.append(render_tex_to_chordpro(content))
-            i = next_index
+            if name in SYMBOLS:
+                _, i = read_group(tex, i) if tex.startswith("{}", i) else (None, i)
+                out.append(SYMBOLS[name])
+                continue
+
+            if name in DROPPED:
+                _, i = read_optional(tex, i)
+                _, i = read_groups(tex, i, DROPPED[name])
+                continue
+
+            if name in CONTENT:
+                _, i = read_optional(tex, i)
+                groups, i = read_groups(tex, i, CONTENT[name])
+                if name == "scalebox":  # \scalebox{h}[v]{content}
+                    _, i = read_optional(tex, i)
+                    content, i = read_group(tex, i)
+                    groups = [content or ""]
+                out.append(convert(groups[-1]))
+                continue
+
+            if name in DIMENSIONED:
+                i = skip_dimension(tex, i)
+                if name == "hskip":
+                    out.append(" ")
+                continue
+
+            if name == "begin":
+                environment, i = read_group(tex, i)
+                if environment in DROPPED_ENVIRONMENTS:
+                    end = tex.find(f"\\end{{{environment}}}", i)
+                    i = len(tex) if end == -1 else end + len(f"\\end{{{environment}}}")
+                elif environment == "minipage":  # \begin{minipage}[t]{\textwidth}
+                    _, i = read_optional(tex, i)
+                    _, i = read_group(tex, i)
+                elif environment == "multicols":
+                    _, i = read_group(tex, i)
+                continue
+
+            if name == "end":
+                _, i = read_group(tex, i)
+                continue
+
+            # Anything else (\large, \medskip, \noindent, \clearpage, ...) is layout only: drop the command,
+            # and swallow the space that terminates it.
+            if i < len(tex) and tex[i] in " \t":
+                i += 1
             continue
 
-        if tex.startswith("\\\\", i):
-            result.append("\n")
+        if ch == "$":
+            end = tex.find("$", i + 1)
+            end = len(tex) if end == -1 else end
+            out.append(convert_math(tex[i + 1:end]))
+            i = end + 1
+            continue
+
+        if ch == "{":
+            content, i = read_delimited(tex, i, "{", "}")
+            out.append(convert(content))
+            continue
+
+        if ch == "~":
+            out.append(" ")
+        elif tex.startswith("---", i):
+            out.append("—")
+            i += 3
+            continue
+        elif tex.startswith("--", i):
+            out.append("–")
             i += 2
             continue
-
-        if tex[i] == "%":
-            newline = tex.find("\n", i)
-            if newline == -1:
-                break
-            i = newline + 1
-            continue
-
-        if tex[i] in "\r\n":
-            result.append("\n")
-            i += 1
-            continue
-
-        if tex[i] == "~":
-            result.append(" ")
-            i += 1
-            continue
-
-        result.append(tex[i])
+        elif ch not in "}\r":
+            out.append(ch)
         i += 1
 
-    return "".join(result)
+    return "".join(out)
+
+
+SECTION_START = re.compile(r"\{start_of_(verse|chorus)(?::[^}]*)?\}")
 
 
 def close_section_markers(text: str) -> str:
-    section_types = ["verse", "chorus", "bridge", "intro", "outro", "interlude", "instrumental"]
-    pattern = r"\{start_of_(" + "|".join(section_types) + r")\}"
-    matches = list(re.finditer(pattern, text))
+    """Close each section at the start of the next one. An empty chorus becomes a {chorus} reference."""
+    matches = list(SECTION_START.finditer(text))
     if not matches:
         return text
 
-    pieces = []
-    cursor = 0
+    pieces = [text[:matches[0].start()]]
     for index, match in enumerate(matches):
-        section_type = match.group(1)
-        pieces.append(text[cursor:match.start()])
-        pieces.append(match.group(0))
         next_start = matches[index + 1].start() if index + 1 < len(matches) else len(text)
-        pieces.append(text[match.end():next_start])
-        pieces.append(f"{{end_of_{section_type}}}\n")
-        cursor = next_start
-    pieces.append(text[cursor:])
+        body = text[match.end():next_start].strip("\n")
+        if not body.strip():
+            if match.group(1) == "chorus":
+                pieces.append("{chorus}\n\n")
+            continue
+        pieces.append(f"{match.group(0)}\n{body}\n{{end_of_{match.group(1)}}}\n\n")
     return "".join(pieces)
 
 
-def bratr_to_chordpro(song, index: int):
-    lines = [
-        f"{{title: {song['title']}}}",
-        f"{{artist: {song['artist']}}}",
+def tidy_lines(text: str) -> str:
+    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.split("\n")]
+    text = "\n".join(lines)
+    return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+
+# Songs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TOP_LEVEL_SONG = re.compile(r"\\(song|songWithTranslation)(?![A-Za-z])")
+
+
+def parse_song_macro(tex: str, i: int) -> tuple[dict, int]:
+    """Parse \\song{title}{artist}{indent}{spread}{body} starting after the macro name."""
+    (title, artist, _, _, body), i = read_groups(tex, i, 5)
+    return {"title": convert_inline(title) or "Untitled", "artist": convert_inline(artist), "body": body}, i
+
+
+def scrape_songs_data(url: str = BRATR_URL) -> list[dict]:
+    with urllib.request.urlopen(url, timeout=30) as response:
+        tex = response.read().decode("utf-8", errors="replace")
+    return parse_songs(tex)
+
+
+def parse_songs(tex: str) -> list[dict]:
+    """Find the top-level songs in document order. Indices match the bratruvzpevnik.cz web app."""
+    tex = strip_comments(tex.replace("\r", ""))
+    begin = tex.find("\\begin{document}")
+    i = begin if begin != -1 else 0
+
+    songs = []
+    while match := TOP_LEVEL_SONG.search(tex, i):
+        i = match.end()
+        if match.group(1) == "song":
+            song, i = parse_song_macro(tex, i)
+            songs.append(song)
+        else:
+            # \songWithTranslation{lang}{\song{...}}{lang}{\originalVersion{...}}: keep the translated song
+            (_, translated, _, _), i = read_groups(tex, i, 4)
+            inner = re.search(r"\\song(?![A-Za-z])", translated)
+            if inner:
+                song, _ = parse_song_macro(translated, inner.end())
+                songs.append(song)
+    return songs
+
+
+def bratr_to_chordpro(song: dict, index: int) -> str:
+    body = convert(song["body"])
+
+    # Move capo out of the body into the header
+    capo = None
+    if match := re.search(r"\{capo: ([^}]*)\}", body):
+        capo = match.group(1).strip()
+        body = body.replace(match.group(0), "")
+
+    lines = [f"{{title: {song['title']}}}"]
+    if song["artist"]:
+        lines.append(f"{{artist: {song['artist']}}}")
+    if capo:
+        lines.append(f"{{capo: {capo}}}")
+    lines += [
         "{meta: source Bratrův zpěvník}",
         f"{{meta: url https://bratruvzpevnik.cz/#/song/{index}}}",
         "",
+        close_section_markers(tidy_lines(body)),
     ]
-
-    rendered = render_tex_to_chordpro(song["body"])
-    rendered = close_section_markers(rendered)
-    rendered = rendered.replace("\r", "")
-    rendered = re.sub(r"\n{3,}", "\n\n", rendered)
-    rendered = rendered.strip()
-    if rendered:
-        lines.extend(rendered.splitlines())
-    lines.append("")
-    return "\n".join(lines).strip() + "\n"
+    return tidy_lines("\n".join(lines)) + "\n"
 
 
 def scrape(output: Path):
-    songs = scrape_songs_data(BRATR_URL)
+    songs = scrape_songs_data()
 
     if output.exists():
         shutil.rmtree(output)
@@ -368,8 +410,8 @@ def scrape(output: Path):
 
     for index, song in enumerate(songs):
         song_chordpro = bratr_to_chordpro(song, index)
-        safe_title = sanitize_filename(song['title'])
-        safe_artist = sanitize_filename(song['artist'])
+        safe_title = sanitize_filename(song["title"])
+        safe_artist = sanitize_filename(song["artist"])
         song_file = output / f"{safe_title} - {safe_artist}.cho"
         with open(song_file, "w", encoding="utf8") as f:
             f.write(song_chordpro)
