@@ -31,7 +31,7 @@ deploys the site (`.github/workflows/static.yml`).
 |---|---|
 | `songs/*.cho` | my own songs ([ChordPro](https://www.chordpro.org/chordpro/chordpro-directives/)) |
 | `songbook.toml` | site title and song sources: labels, priority, scrapers |
-| `songs/overrides.toml` | manual fixes to matching songs across sources |
+| `songs/.overrides.toml` | manual fixes to matching songs across sources |
 | `bin/build.py` | scrapes, matches and writes the website data and PDF |
 | `bin/library.py` | loading songs and matching versions of the same song |
 | `bin/scraping/` | one scraper per online songbook |
@@ -46,7 +46,7 @@ default (my own songs, labelled *Krtek*); readers can switch, and their pick is
 remembered in their browser. A version can be linked directly as
 `#song-id/source-id`.
 
-When matching gets it wrong, fix it in `songs/overrides.toml`: `merge` joins
+When matching gets it wrong, fix it in `songs/.overrides.toml`: `merge` joins
 songs whose titles differ, `separate` keeps a song apart from same-titled ones.
 
 ## Styling

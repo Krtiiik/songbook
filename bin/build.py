@@ -2,7 +2,7 @@
 """Build the songbook website and PDF.
 
 Songs come from the sources in songbook.toml. Versions of the same song from different sources are grouped
-(see library.py and songs/overrides.toml). The website is the web/ folder plus generated data:
+(see library.py and songs/.overrides.toml). The website is the web/ folder plus generated data:
 
     dist/index.json        site title, sources and the list of songs with their versions
     dist/songs/<id>.json   rendered versions of one song, loaded when the song is opened
@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 parser = argparse.ArgumentParser(description="Build the songbook.")
 parser.add_argument("--config", default=ROOT / "songbook.toml", type=Path, help="Songbook configuration")
-parser.add_argument("--overrides", default=ROOT / "songs" / "overrides.toml", type=Path, help="Manual song matching")
+parser.add_argument("--overrides", default=ROOT / "songs" / ".overrides.toml", type=Path, help="Manual song matching")
 parser.add_argument("--web", default=ROOT / "web", type=Path, help="Static website files")
 parser.add_argument("--cache", default=ROOT / ".cache" / "sources", type=Path, help="Scraped songs")
 parser.add_argument("--output", default=ROOT / "dist", type=Path, help="Output directory")
