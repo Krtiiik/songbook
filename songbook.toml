@@ -17,13 +17,13 @@ label = "Krtek"
 path = "songs"
 
 [[sources]]
-id = "jradl"
-label = "JRadl"
-scraper = "jradl"
-url = "https://zpevnik.jradl.cz"
-
-[[sources]]
 id = "bratr"
 label = "Bratrův zpěvník"
 scraper = "bratr"
 url = "https://bratruvzpevnik.cz"
+
+[[sources]]
+id = "jradl"
+label = "JRadl"
+scraper = "jradl"
+url = "https://zpevnik.jradl.cz"
