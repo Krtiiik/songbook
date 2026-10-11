@@ -9,6 +9,8 @@
 //   motion.js     the fade-and-rise when a view or song appears, and a song following a swipe
 //   swipe.js      when a sideways drag counts as a swipe between songs
 //   settings.js   preferences remembered in the browser (theme, zoom, versions)
+//   settings-menu.js  the settings modal opened from the top bars (theme choice, tuner)
+//   theme.js      what the theme choice (light, dark, system) resolves to
 //   offline.js    registers the service worker that makes the site installable
 
 import { index, getEntry, loadIndex } from "./data.js";
@@ -16,6 +18,7 @@ import { setupOffline } from "./offline.js";
 import { currentRoute, onRouteChange } from "./router.js";
 import { replayEnter } from "./motion.js";
 import * as settings from "./settings.js";
+import { setupSettingsMenu } from "./settings-menu.js";
 import { setupTuner } from "./tuner.js";
 import { markCurrentLetter, setupIndex } from "./views/index.js";
 import { setupSong, showSong } from "./views/song.js";
@@ -49,10 +52,8 @@ async function start() {
     setupIndex();
     setupSong({ isActive: () => view === "song" });
     setupTuner();
+    setupSettingsMenu();
     setupOffline();
-    for (const button of document.querySelectorAll(".theme-toggle")) {
-        button.addEventListener("click", () => settings.setTheme(settings.getTheme() === "dark" ? "light" : "dark"));
-    }
 
     onRouteChange(route);
     route(currentRoute());

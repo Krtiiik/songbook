@@ -2,6 +2,8 @@
 // Storage can be unavailable (private mode, blocked site data): everything
 // still works, it just isn't remembered.
 
+import { parseThemeChoice, resolveTheme } from "./theme.js";
+
 const PREFIX = "songbook:";
 
 function read(key, fallback = null) {
@@ -21,9 +23,9 @@ function write(key, value) {
     }
 }
 
-// Theme: "light" | "dark", defaulting to the system preference
+// Theme choice: "light" | "dark" | "system" (the default, follows the device)
 export function getTheme() {
-    return read("theme") ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    return parseThemeChoice(read("theme"));
 }
 
 export function setTheme(theme) {
@@ -35,14 +37,19 @@ export function setTheme(theme) {
 // the page background of each theme, so keep it equal to --bg in theme.css.
 const CHROME_COLOR = { light: "#fbfaf7", dark: "#15130f" };
 
+const systemDark = matchMedia("(prefers-color-scheme: dark)");
+
 export function applyTheme() {
-    const theme = getTheme();
+    const theme = resolveTheme(getTheme(), systemDark.matches);
     document.documentElement.dataset.theme = theme;
     // The meta tags in index.html follow the system theme; the reader's own pick may differ
     for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
         meta.content = CHROME_COLOR[theme];
     }
 }
+
+// While the choice is "system", a change of the device setting shows at once
+systemDark.addEventListener("change", applyTheme);
 
 // Song text size, 1 = 100 %
 export const getZoom = () => read("zoom", 1);
