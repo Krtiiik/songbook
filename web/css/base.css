@@ -537,18 +537,6 @@ body[data-view="song"]::after {
   color: var(--accent);
 }
 
-#tuner-toggle.listening {
-  background: var(--listening-soft);
-  color: var(--listening);
-}
-
-.toolbar-divider {
-  width: 1px;
-  height: 24px;
-  margin: 0 4px;
-  background: var(--border);
-}
-
 /* Number of song columns, shown on the columns button */
 #columns-badge {
   position: absolute;
@@ -661,11 +649,7 @@ body[data-view="song"]::after {
   color: var(--chord);
 }
 
-/* Tuner */
-
-#tuner-box {
-  width: 280px;
-}
+/* Tuner: a page of the settings modal */
 
 .control-select {
   width: 100%;
@@ -735,6 +719,18 @@ body[data-view="song"]::after {
   font-size: 13px;
   letter-spacing: 0.05em;
   color: var(--comment);
+}
+
+#tuner-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--comment);
+}
+
+#tuner-status.listening {
+  color: var(--listening);
 }
 
 /* Settings modal *************************************************************/
@@ -809,6 +805,26 @@ body:has(#settings-dialog[open]) {
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--comment);
+}
+
+/* A setting with a page of its own: label on the left, arrow on the right */
+.settings-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  background: var(--field);
+  text-align: left;
+}
+
+.settings-link span {
+  flex: 1;
+}
+
+.settings-link > .icon:last-child {
   color: var(--comment);
 }
 

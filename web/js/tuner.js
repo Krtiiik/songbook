@@ -2,8 +2,6 @@
 // Listens to the microphone, finds the pitch by autocorrelation and shows how far
 // it is from the nearest string of the chosen instrument (or nearest note).
 
-import { popover } from "./popover.js";
-
 const SETTINGS = {
     referenceFrequency: 440,
     rmsThreshold: 0.01, // quieter input is ignored
@@ -107,6 +105,9 @@ class Tuner {
         this.onUpdate = onUpdate;
         this.strings = STRINGS.guitar;
         this.audio = null;
+        // Bumped by stop(), so a start() still waiting for the microphone can tell it was cancelled
+        this.generation = 0;
+        this.pending = null; // the generation a start() is waiting in
     }
 
     setInstrument(instrument) {
@@ -114,9 +115,16 @@ class Tuner {
     }
 
     async start() {
-        if (this.audio) return;
+        if (this.audio || this.pending === this.generation) return;
+        const generation = this.generation;
+        this.pending = generation;
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            if (generation !== this.generation) {
+                // Left the tuner before the reader answered the permission prompt
+                stream.getTracks().forEach((track) => track.stop());
+                return;
+            }
             const context = new AudioContext();
             const analyser = context.createAnalyser();
             analyser.fftSize = SETTINGS.fftSize;
@@ -126,11 +134,13 @@ class Tuner {
             this.onUpdate({ listening: true });
         } catch (error) {
             console.error("Unable to start tuner:", error);
+            this.pending = null;
             this.onUpdate({ listening: false });
         }
     }
 
     stop() {
+        this.generation += 1;
         if (!this.audio) return;
         clearInterval(this.timer);
         this.audio.stream.getTracks().forEach((track) => track.stop());
@@ -152,17 +162,18 @@ class Tuner {
     }
 }
 
+/** Wires the tuner page of the settings menu; the menu starts and stops it as the page is shown and left. */
 export function setupTuner() {
-    const button = document.getElementById("tuner-toggle");
-    const box = document.getElementById("tuner-box");
     const instrument = document.getElementById("tuner-instrument");
     const targetNote = document.getElementById("tuner-target-note");
     const label = document.getElementById("tuner-label");
     const marker = document.getElementById("tuner-bar-marker");
     const fill = document.getElementById("tuner-bar-fill");
+    const status = document.getElementById("tuner-status");
 
     const tuner = new Tuner(({ listening, target = null, cents = 0 }) => {
-        button.classList.toggle("listening", listening);
+        status.classList.toggle("listening", listening);
+        status.lastElementChild.textContent = listening ? "Poslouchám" : "Mikrofon je vypnutý";
         targetNote.textContent = target ?? "-";
         label.textContent = target ? `${cents >= 0 ? "+" : ""}${cents}¢` : "-";
         marker.style.left = `${Math.max(0, Math.min(100, 50 + cents))}%`;
@@ -174,5 +185,6 @@ export function setupTuner() {
 
     tuner.setInstrument(instrument.value);
     instrument.addEventListener("change", () => tuner.setInstrument(instrument.value));
-    popover(button, box, { onOpen: () => tuner.start(), onClose: () => tuner.stop() });
+    status.lastElementChild.textContent = "Mikrofon je vypnutý";
+    return { start: () => tuner.start(), stop: () => tuner.stop() };
 }

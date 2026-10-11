@@ -58,6 +58,31 @@
                         <button class="segment" data-choice="system" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-system"/></svg>Systém</button>
                     </div>
                 </div>
+                <button id="open-tuner" class="settings-link">
+                    <svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg>
+                    <span>Ladička</span>
+                    <svg class="icon" aria-hidden="true"><use href="#i-next"/></svg>
+                </button>
+            </section>
+
+            <section id="settings-tuner" class="settings-page hidden">
+                <select id="tuner-instrument" class="control-select" aria-label="Nástroj">
+                    <option value="guitar">Kytara</option>
+                    <option value="bass">Baskytara</option>
+                    <option value="ukulele">Ukulele</option>
+                    <option value="violin">Housle</option>
+                    <option value="cello">Violoncello</option>
+                    <option value="banjo">Banjo</option>
+                    <option value="mandolin">Mandolína</option>
+                    <option value="chromatic">Chromatická</option>
+                </select>
+                <div id="tuner-target-note">-</div>
+                <div id="tuner-bar">
+                    <div id="tuner-bar-fill"></div>
+                    <div id="tuner-bar-marker"></div>
+                </div>
+                <div id="tuner-label">-</div>
+                <div id="tuner-status"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg><span></span></div>
             </section>
         </div>
     </dialog>
@@ -122,8 +147,6 @@
         <button id="zoom-toggle" class="tool" title="Velikost písma" aria-label="Velikost písma"><svg class="icon" aria-hidden="true"><use href="#i-text-size"/></svg></button>
         <button id="columns-toggle" class="tool hidden" title="Sloupce" aria-label="Sloupce"><svg class="icon" aria-hidden="true"><use href="#i-columns"/></svg><span id="columns-badge" aria-hidden="true"></span></button>
         <button id="chords-toggle" class="tool" title="Akordy" aria-label="Akordy"><svg class="icon" aria-hidden="true"><use href="#i-chords"/></svg></button>
-        <span class="toolbar-divider" aria-hidden="true"></span>
-        <button id="tuner-toggle" class="tool" title="Ladička" aria-label="Ladička"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg></button>
     </div>
 
     <!-- Opens under the top bar, from the version button -->
@@ -152,26 +175,6 @@
     </div>
 
     <div id="chords-box" class="popover hidden"></div>
-
-    <div id="tuner-box" class="popover hidden">
-        <div class="popover-title">Ladička</div>
-        <select id="tuner-instrument" class="control-select" aria-label="Nástroj">
-            <option value="guitar">Kytara</option>
-            <option value="bass">Baskytara</option>
-            <option value="ukulele">Ukulele</option>
-            <option value="violin">Housle</option>
-            <option value="cello">Violoncello</option>
-            <option value="banjo">Banjo</option>
-            <option value="mandolin">Mandolína</option>
-            <option value="chromatic">Chromatická</option>
-        </select>
-        <div id="tuner-target-note">-</div>
-        <div id="tuner-bar">
-            <div id="tuner-bar-fill"></div>
-            <div id="tuner-bar-marker"></div>
-        </div>
-        <div id="tuner-label">-</div>
-    </div>
 </body>
 
 </html>

@@ -51,8 +51,7 @@ async function start() {
 
     setupIndex();
     setupSong({ isActive: () => view === "song" });
-    setupTuner();
-    setupSettingsMenu();
+    setupSettingsMenu({ tuner: setupTuner() });
     setupOffline();
 
     onRouteChange(route);
