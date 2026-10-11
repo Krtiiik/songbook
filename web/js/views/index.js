@@ -1,14 +1,16 @@
 // Song list and search -----------------------------------------------------------
-// Without a query the list has a section per first letter and an A-Z rail to jump
-// between them; while searching it is a flat list of matches.
+// Without a query the list has a section per first letter and an A-Z rail to seek
+// through them (press and drag along it, a bubble names the letter until release);
+// while searching it is a flat list of matches.
 
 import Fuse from "../../vendor/fuse.mjs";
 import { index } from "../data.js";
-import { groupByLetter } from "../letters.js";
+import { groupByLetter, railIndexAt } from "../letters.js";
 import { goToSong, songHref } from "../router.js";
 
 const list = document.getElementById("song-list");
 const rail = document.getElementById("letter-rail");
+const bubble = document.getElementById("letter-bubble");
 const searchInput = document.getElementById("search-input");
 const searchCount = document.getElementById("search-count");
 
@@ -17,6 +19,7 @@ const STICKY_OFFSET = 130; // a section counts as current once it reaches the ba
 let fuse = null;
 let shownSongs = [];
 let headers = []; // section header elements, parallel to the rail's buttons
+let seeking = null; // index of the letter the reader holds the rail on; null when not seeking
 
 function songLink(song) {
     const link = document.createElement("a");
@@ -65,7 +68,10 @@ function renderSections(songs) {
         const button = document.createElement("button");
         button.className = "rail-letter";
         button.textContent = header.textContent;
-        button.addEventListener("click", () => header.scrollIntoView({ block: "start" }));
+        // Pointer presses are handled by the rail's seek; this serves keyboard activation
+        button.addEventListener("click", (event) => {
+            if (event.detail === 0) header.scrollIntoView({ block: "start" });
+        });
         return button;
     }));
     markCurrentLetter();
@@ -101,12 +107,58 @@ function renderList() {
 export function markCurrentLetter() {
     if (!headers.length || !headers[0].offsetParent) return; // not on screen: nothing to measure
     let current = 0;
-    headers.forEach((header, position) => {
-        if (header.getBoundingClientRect().top <= STICKY_OFFSET) current = position;
-    });
+    if (seeking !== null) {
+        current = seeking; // the last sections cannot always reach the top, so trust the finger
+    } else {
+        headers.forEach((header, position) => {
+            if (header.getBoundingClientRect().top <= STICKY_OFFSET) current = position;
+        });
+    }
     [...rail.children].forEach((button, position) => {
         button.setAttribute("aria-current", String(position === current));
     });
+}
+
+/** Jumps to the letter under the pointer and shows it in the bubble beside the finger. */
+function seekTo(event) {
+    const buttons = [...rail.children];
+    if (!buttons.length) return;
+    const top = buttons[0].getBoundingClientRect().top;
+    const bottom = buttons.at(-1).getBoundingClientRect().bottom;
+    const position = railIndexAt(event.clientY, top, bottom, buttons.length);
+
+    bubble.style.setProperty("--bubble-y", `${Math.min(Math.max(event.clientY, top), bottom)}px`);
+    if (position === seeking) return;
+    seeking = position;
+    bubble.textContent = headers[position].textContent;
+    headers[position].scrollIntoView({ block: "start" });
+    markCurrentLetter();
+}
+
+function stopSeeking() {
+    if (seeking === null) return;
+    seeking = null;
+    bubble.classList.add("hidden");
+    rail.classList.remove("seeking");
+    markCurrentLetter();
+}
+
+function setupRailSeek() {
+    rail.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 || !headers.length) return;
+        event.preventDefault();
+        rail.setPointerCapture(event.pointerId);
+        rail.classList.add("seeking");
+        bubble.classList.remove("hidden");
+        seekTo(event);
+    });
+    rail.addEventListener("pointermove", (event) => {
+        if (seeking !== null) seekTo(event);
+    });
+    rail.addEventListener("pointerup", stopSeeking);
+    rail.addEventListener("pointercancel", stopSeeking);
+    rail.addEventListener("lostpointercapture", stopSeeking);
+    rail.addEventListener("contextmenu", (event) => event.preventDefault()); // long press on a phone
 }
 
 export function setupIndex() {
@@ -117,6 +169,7 @@ export function setupIndex() {
         ignoreDiacritics: true,
     });
     renderList();
+    setupRailSeek();
 
     searchInput.addEventListener("input", renderList);
     searchInput.addEventListener("keydown", (event) => {

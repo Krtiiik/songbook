@@ -48,7 +48,7 @@ select {
 
 /* Views: body[data-view] is "index" or "song" ********************************/
 
-body:not([data-view="index"]) :is(#index-header, #index, #letter-rail),
+body:not([data-view="index"]) :is(#index-header, #index, #letter-rail, #letter-bubble),
 body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar, .popover) {
   display: none;
 }
@@ -198,7 +198,7 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
 }
 
 #song-list {
-  padding-right: 24px; /* room for the letter rail */
+  padding-right: 34px; /* room for the letter rail */
 }
 
 .letter-header {
@@ -278,10 +278,23 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   justify-content: center;
   align-items: center;
   overflow: hidden;
+
+  /* Pressed and dragged to seek, so the browser must not scroll or select instead */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: pointer;
+}
+
+#letter-rail.seeking {
+  background: var(--accent-soft);
+  border-radius: 999px;
 }
 
 .rail-letter {
-  width: 22px;
+  pointer-events: none; /* the rail itself reads the pointer, so a drag across letters is one gesture */
+  width: 30px;
   min-height: 0;
   flex: 0 1 20px;
 
@@ -299,6 +312,30 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   font-weight: 700;
   background: var(--accent-soft);
   border-radius: 999px;
+}
+
+/* Names the letter being sought while the rail is held, level with the finger */
+#letter-bubble {
+  position: fixed;
+  right: calc(max(2px, calc(50% - var(--page-width) / 2 - 40px)) + 44px);
+  top: var(--bubble-y, 50%);
+  transform: translateY(-50%);
+  z-index: 4;
+  pointer-events: none;
+
+  min-width: 64px;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: var(--accent);
+  color: var(--bg);
+  box-shadow: var(--shadow);
+
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
 }
 
 /* Song header ****************************************************************/
