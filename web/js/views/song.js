@@ -5,10 +5,11 @@ import { clampColumns, maxColumns, nextColumns } from "../columns.js";
 import {
     getEntry, getNeighbour, getPosition, getRandom, index, loadSong, prefetchNeighbours, sourceLabel,
 } from "../data.js";
-import { replayEnter } from "../motion.js";
+import { clearDrag, dragTo, flingOut, replayEnter, slideIn, springBack } from "../motion.js";
 import { closeAll, popover } from "../popover.js";
 import { goToSong } from "../router.js";
 import * as settings from "../settings.js";
+import { dragOffset, isSwipe, lockAxis } from "../swipe.js";
 import { transposeChord } from "../transpose.js";
 import { sourceInitial, stackOrder } from "../versions.js";
 
@@ -28,6 +29,8 @@ const MAX_DEPTH = 3; // circles deeper than the third are hidden; keep in step w
 
 let current = null; // { id, versionId }
 let renderToken = 0;
+let swipe = null; // { side, expires } while a swiped-away song waits for the next one: -1 or 1, the side it left towards
+const SWIPE_WAIT_MS = 2000; // a swipe whose navigation never rendered (back to the list, say) is forgotten after this
 
 // Rendering ------------------------------------------------------------------------
 
@@ -40,7 +43,11 @@ export async function showSong(songId, versionId) {
         song = await loadSong(songId);
     } catch (error) {
         console.error(error);
-        if (token === renderToken) content.textContent = "Píseň se nepodařilo načíst.";
+        if (token === renderToken) {
+            swipe = null;
+            clearDrag(page);
+            content.textContent = "Píseň se nepodařilo načíst.";
+        }
         return;
     }
     if (token !== renderToken) return; // a newer navigation won
@@ -61,9 +68,23 @@ export async function showSong(songId, versionId) {
     window.scrollTo(0, 0);
     closeAll();
     setTranspose(0);
-    replayEnter(header, content);
+    enter();
 
     prefetchNeighbours(songId);
+}
+
+const swiping = () => swipe !== null && performance.now() < swipe.expires;
+
+/** The new song arrives from the side opposite to where a swiped one left, otherwise it fades and rises. */
+function enter() {
+    const side = swiping() ? swipe.side : 0;
+    swipe = null;
+    clearDrag(page);
+    if (side) {
+        slideIn(page, -side * window.innerWidth * 0.35);
+    } else {
+        replayEnter(header, content);
+    }
 }
 
 /** Version button, its pills and a link to the original songbook. */
@@ -194,24 +215,67 @@ function seek(offset) {
     if (current) goToSong(getNeighbour(current.id, offset).id, null, { replace: true });
 }
 
+/** True when a touch starts in something the finger scrolls sideways (a tab), which then keeps the gesture. */
+function scrollsSideways(element) {
+    for (; element && element !== page; element = element.parentElement) {
+        const { overflowX } = getComputedStyle(element);
+        if ((overflowX === "auto" || overflowX === "scroll") && element.scrollWidth > element.clientWidth) return true;
+    }
+    return false;
+}
+
+/**
+ * Dragging a finger sideways moves the song with it; letting go far or fast enough carries
+ * it out of sight and the neighbouring song slides in (see `enter`), otherwise it springs back.
+ * Vertical drags are left to scrolling (`touch-action: pan-y` in song.css).
+ */
 function setupSwipes() {
-    let start = null;
-    content.addEventListener("touchstart", (event) => {
-        const touch = event.changedTouches[0];
-        start = { x: touch.screenX, y: touch.screenY, time: event.timeStamp };
+    let gesture = null; // { x, y, axis, originX, originTime }
+
+    const finger = (event) => event.changedTouches[0];
+
+    page.addEventListener("touchstart", (event) => {
+        gesture = null;
+        if (swiping() || event.touches.length > 1 || scrollsSideways(event.target)) return;
+        gesture = { x: finger(event).clientX, y: finger(event).clientY, axis: null };
     }, { passive: true });
 
-    content.addEventListener("touchend", (event) => {
-        if (!start) return;
-        const touch = event.changedTouches[0];
-        const dx = touch.screenX - start.x;
-        const dy = touch.screenY - start.y;
-        const duration = event.timeStamp - start.time;
-        start = null;
+    page.addEventListener("touchmove", (event) => {
+        if (!gesture) return;
+        if (event.touches.length > 1) { // a second finger (pinch): not a swipe
+            if (gesture.axis === "x") springBack(page);
+            gesture = null;
+            return;
+        }
+        const touch = finger(event);
+        if (!gesture.axis) {
+            gesture.axis = lockAxis(touch.clientX - gesture.x, touch.clientY - gesture.y);
+            // The drag starts from where the direction was settled, so the song does not jump
+            gesture.originX = touch.clientX;
+            gesture.originTime = event.timeStamp;
+        }
+        if (gesture.axis === "x") dragTo(page, dragOffset(touch.clientX - gesture.originX, window.innerWidth), window.innerWidth);
+    }, { passive: true });
 
-        // A quick, mostly horizontal swipe of at least 100 px
-        if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 100 || duration > 400) return;
-        seek(dx < 0 ? 1 : -1);
+    page.addEventListener("touchend", async (event) => {
+        if (!gesture || gesture.axis !== "x") return;
+        const dx = finger(event).clientX - gesture.originX;
+        const duration = event.timeStamp - gesture.originTime;
+        gesture = null;
+
+        const offset = dx < 0 ? 1 : -1;
+        if (!current || !isSwipe(dx, duration, window.innerWidth) || getNeighbour(current.id, offset).id === current.id) {
+            springBack(page);
+            return;
+        }
+        swipe = { side: Math.sign(dx), expires: performance.now() + SWIPE_WAIT_MS };
+        await flingOut(page, swipe.side * window.innerWidth);
+        seek(offset);
+    });
+
+    page.addEventListener("touchcancel", () => {
+        if (gesture?.axis === "x") springBack(page);
+        gesture = null;
     });
 }
 
