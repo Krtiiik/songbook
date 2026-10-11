@@ -7,8 +7,10 @@
 //   transpose.js  chord transposition, chords.js chord diagrams, tuner.js tuner
 //   motion.js     the fade-and-rise when a view or song appears
 //   settings.js   preferences remembered in the browser (theme, zoom, versions)
+//   offline.js    registers the service worker that makes the site installable
 
 import { index, getEntry, loadIndex } from "./data.js";
+import { setupOffline } from "./offline.js";
 import { currentRoute, onRouteChange } from "./router.js";
 import { replayEnter } from "./motion.js";
 import * as settings from "./settings.js";
@@ -45,6 +47,7 @@ async function start() {
     setupIndex();
     setupSong({ isActive: () => view === "song" });
     setupTuner();
+    setupOffline();
     for (const button of document.querySelectorAll(".theme-toggle")) {
         button.addEventListener("click", () => settings.setTheme(settings.getTheme() === "dark" ? "light" : "dark"));
     }
