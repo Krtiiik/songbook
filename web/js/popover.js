@@ -10,11 +10,15 @@ export function popover(button, box, { onOpen = () => {}, onClose = () => {} } =
             if (instance.isOpen()) return;
             closeAll(instance);
             box.classList.remove("hidden");
+            button.classList.add("open");
+            button.setAttribute("aria-expanded", "true");
             onOpen();
         },
         close() {
             if (!instance.isOpen()) return;
             box.classList.add("hidden");
+            button.classList.remove("open");
+            button.setAttribute("aria-expanded", "false");
             onClose();
         },
         toggle: () => (instance.isOpen() ? instance.close() : instance.open()),

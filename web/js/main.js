@@ -3,14 +3,17 @@
 //   data.js       loads index.json and songs/<id>.json
 //   router.js     URL hash <-> what is shown
 //   views/        song list (index.js) and song (song.js)
+//   letters.js    letter sections of the list, columns.js how many song columns fit
 //   transpose.js  chord transposition, chords.js chord diagrams, tuner.js tuner
+//   motion.js     the fade-and-rise when a view or song appears
 //   settings.js   preferences remembered in the browser (theme, zoom, versions)
 
 import { index, getEntry, loadIndex } from "./data.js";
 import { currentRoute, onRouteChange } from "./router.js";
+import { replayEnter } from "./motion.js";
 import * as settings from "./settings.js";
 import { setupTuner } from "./tuner.js";
-import { setupIndex } from "./views/index.js";
+import { markCurrentLetter, setupIndex } from "./views/index.js";
 import { setupSong, showSong } from "./views/song.js";
 
 settings.applyTheme();
@@ -18,6 +21,7 @@ settings.applyTheme();
 let view = null;
 
 function showView(name) {
+    if (name === "index" && view !== "index") replayEnter(document.getElementById("index"));
     view = name;
     document.body.dataset.view = name;
 }
@@ -28,6 +32,7 @@ function route({ songId, versionId }) {
         showSong(songId, versionId);
     } else {
         showView("index");
+        markCurrentLetter();
         document.title = index.title;
     }
 }

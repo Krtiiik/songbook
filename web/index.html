@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zpěvník</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/song.css">
@@ -15,89 +14,129 @@
 </head>
 
 <body data-view="loading">
+    <!-- Icons: line icons on a 24px grid, drawn with currentColor (see .icon in base.css) --->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+        <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+        <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5"/></symbol>
+        <symbol id="i-next" viewBox="0 0 24 24"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></symbol>
+        <symbol id="i-random" viewBox="0 0 24 24"><path d="M3 7h3.5c5 0 5 10 10 10H21M3 17h3.5c1.8 0 3-.9 4-2.2M13.5 8.8C14.5 7.6 15.7 7 17 7h4M18.5 4.5 21 7l-2.5 2.5M18.5 14.5 21 17l-2.5 2.5"/></symbol>
+        <symbol id="i-transpose" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+        <symbol id="i-text-size" viewBox="0 0 24 24"><path d="M3 19 8.5 6 14 19M5 14.5h7M16 19l2.5-6 2.5 6M17 17h3"/></symbol>
+        <symbol id="i-columns" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><path d="M9.2 4v16M14.8 4v16"/></symbol>
+        <symbol id="i-chords" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M5 9h14M5 15h14M12 3v18"/></symbol>
+        <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
+        <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></symbol>
+    </svg>
+
     <!-- Song list ------------------------------------------------------------------>
-    <header id="index-header" class="header">
-        <div class="toolbar">
-            <button id="search-toggle" class="button" title="Hledat"><i class="bi bi-search"></i></button>
+    <header id="index-header" class="topbar">
+        <div class="topbar-side">
+            <a id="pdf-link" class="button hidden" href="songbook.pdf" title="PDF" aria-label="PDF"><svg class="icon" aria-hidden="true"><use href="#i-pdf"/></svg></a>
         </div>
         <h1 id="index-title"></h1>
-        <div class="toolbar">
-            <a id="pdf-link" class="button hidden" href="songbook.pdf" title="PDF"><i class="bi bi-file-earmark-pdf"></i></a>
-            <button class="button theme-toggle" title="Světlý / tmavý režim"><i class="bi bi-moon"></i><i class="bi bi-sun"></i></button>
+        <div class="topbar-side topbar-end">
+            <button class="button theme-toggle" title="Světlý / tmavý režim" aria-label="Světlý / tmavý režim"><svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
         </div>
     </header>
 
     <main id="index">
-        <div id="search-box" class="hidden">
-            <input id="search-input" type="search" autocomplete="off" placeholder="Název nebo interpret">
-        </div>
-        <nav id="song-list"></nav>
+        <label id="search-box">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <input id="search-input" type="search" autocomplete="off" aria-label="Hledat píseň" placeholder="Název nebo interpret">
+            <span id="search-count" class="chip"></span>
+        </label>
+        <nav id="song-list" aria-label="Seznam písní"></nav>
     </main>
+    <nav id="letter-rail" aria-label="Přejít na písmeno"></nav>
 
     <!-- Song ----------------------------------------------------------------------->
-    <header id="song-header" class="header">
-        <div id="song-toolbar" class="toolbar">
-            <a class="button" href="#" title="Seznam písní"><i class="bi bi-music-note-list"></i></a>
-
-            <button id="random-song" class="button" title="Náhodná píseň"><i class="bi bi-shuffle"></i></button>
-
-            <button id="transpose-toggle" class="button" title="Transpozice"><i class="bi bi-sliders"></i></button>
-            <div id="transpose-box" class="popover hidden">
-                <button id="transpose-reset" class="button"><i class="bi bi-record-circle"></i></button>
-                <div id="transpose-show" class="control-value">0</div>
-                <button id="transpose-down" class="button"><i class="bi bi-dash-circle"></i></button>
-                <button id="transpose-up" class="button"><i class="bi bi-plus-circle"></i></button>
-            </div>
-
-            <button id="zoom-toggle" class="button" title="Velikost písma"><i class="bi bi-alphabet-uppercase"></i></button>
-            <div id="zoom-box" class="popover hidden">
-                <button id="zoom-reset" class="button"><i class="bi bi-x-circle"></i></button>
-                <div id="zoom-show" class="control-value">100%</div>
-                <button id="zoom-out" class="button"><i class="bi bi-zoom-out"></i></button>
-                <button id="zoom-in" class="button"><i class="bi bi-zoom-in"></i></button>
-            </div>
-
-            <button id="chords-toggle" class="button" title="Akordy"><i class="bi bi-book"></i></button>
-            <div id="chords-box" class="popover hidden"></div>
-
-            <button id="tuner-toggle" class="button" title="Ladička"><i class="bi bi-mic"></i><i class="bi bi-mic-fill"></i></button>
-            <div id="tuner-box" class="popover hidden">
-                <select id="tuner-instrument" class="control-select">
-                    <option value="guitar">Kytara 🎸</option>
-                    <option value="bass">Baskytara</option>
-                    <option value="ukulele">Ukulele</option>
-                    <option value="violin">Housle 🎻</option>
-                    <option value="cello">Violoncello</option>
-                    <option value="banjo">Banjo 🪕</option>
-                    <option value="mandolin">Mandolína</option>
-                    <option value="chromatic">Chromatická 🎶</option>
-                </select>
-                <div id="tuner-target-note">-</div>
-                <div id="tuner-bar">
-                    <div id="tuner-bar-fill"></div>
-                    <div id="tuner-bar-marker"></div>
-                </div>
-                <div id="tuner-label">-</div>
-            </div>
-
-            <button class="button theme-toggle" title="Světlý / tmavý režim"><i class="bi bi-moon"></i><i class="bi bi-sun"></i></button>
+    <header id="song-topbar" class="topbar">
+        <div class="topbar-side">
+            <a class="button" href="#" title="Seznam písní" aria-label="Seznam písní"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></a>
         </div>
+        <div id="song-position"></div>
+        <div class="topbar-side topbar-end">
+            <button id="random-song" class="button" title="Náhodná píseň" aria-label="Náhodná píseň"><svg class="icon" aria-hidden="true"><use href="#i-random"/></svg></button>
+            <button class="button theme-toggle" title="Světlý / tmavý režim" aria-label="Světlý / tmavý režim"><svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
+        </div>
+    </header>
 
+    <div id="song-page">
+    <header id="song-header">
         <div id="song-heading">
             <h1 id="song-title"></h1>
             <h2 id="song-artist"></h2>
         </div>
 
         <div id="song-meta">
-            <span id="song-capo"></span>
-            <span id="song-sources"></span>
+            <div id="song-versions" role="group" aria-label="Verze písně" class="hidden"></div>
+            <span id="song-capo" class="chip"></span>
+            <span id="song-source"></span>
         </div>
     </header>
 
     <main id="song-content"></main>
+    </div>
 
-    <button id="seek-previous" class="seek" title="Předchozí"><i class="bi bi-arrow-bar-left"></i></button>
-    <button id="seek-next" class="seek" title="Další"><i class="bi bi-arrow-bar-right"></i></button>
+    <button id="seek-previous" class="seek" title="Předchozí" aria-label="Předchozí píseň"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></button>
+    <button id="seek-next" class="seek" title="Další" aria-label="Další píseň"><svg class="icon" aria-hidden="true"><use href="#i-next"/></svg></button>
+
+    <!-- Floating toolbar and the boxes it opens -------------------------------------->
+    <div id="song-toolbar" role="toolbar" aria-label="Nástroje písně">
+        <button id="transpose-toggle" class="tool" title="Transpozice" aria-label="Transpozice"><svg class="icon" aria-hidden="true"><use href="#i-transpose"/></svg></button>
+        <button id="zoom-toggle" class="tool" title="Velikost písma" aria-label="Velikost písma"><svg class="icon" aria-hidden="true"><use href="#i-text-size"/></svg></button>
+        <button id="columns-toggle" class="tool hidden" title="Sloupce" aria-label="Sloupce"><svg class="icon" aria-hidden="true"><use href="#i-columns"/></svg><span id="columns-badge" aria-hidden="true"></span></button>
+        <button id="chords-toggle" class="tool" title="Akordy" aria-label="Akordy"><svg class="icon" aria-hidden="true"><use href="#i-chords"/></svg></button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button id="tuner-toggle" class="tool" title="Ladička" aria-label="Ladička"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg></button>
+    </div>
+
+    <div id="transpose-box" class="popover hidden">
+        <div class="popover-title">Transpozice</div>
+        <div class="popover-row">
+            <button id="transpose-reset" class="button" title="Původní tónina" aria-label="Původní tónina"><svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg></button>
+            <div id="transpose-show" class="control-value">0</div>
+            <button id="transpose-down" class="button round" title="Níž" aria-label="Níž"><svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg></button>
+            <button id="transpose-up" class="button round" title="Výš" aria-label="Výš"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button>
+        </div>
+    </div>
+
+    <div id="zoom-box" class="popover hidden">
+        <div class="popover-title">Velikost písma</div>
+        <div class="popover-row">
+            <button id="zoom-reset" class="button" title="Výchozí velikost" aria-label="Výchozí velikost"><svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg></button>
+            <div id="zoom-show" class="control-value">100%</div>
+            <button id="zoom-out" class="button round zoom-glyph" title="Menší" aria-label="Menší">A</button>
+            <button id="zoom-in" class="button round zoom-glyph zoom-glyph-large" title="Větší" aria-label="Větší">A</button>
+        </div>
+    </div>
+
+    <div id="chords-box" class="popover hidden"></div>
+
+    <div id="tuner-box" class="popover hidden">
+        <div class="popover-title">Ladička</div>
+        <select id="tuner-instrument" class="control-select" aria-label="Nástroj">
+            <option value="guitar">Kytara</option>
+            <option value="bass">Baskytara</option>
+            <option value="ukulele">Ukulele</option>
+            <option value="violin">Housle</option>
+            <option value="cello">Violoncello</option>
+            <option value="banjo">Banjo</option>
+            <option value="mandolin">Mandolína</option>
+            <option value="chromatic">Chromatická</option>
+        </select>
+        <div id="tuner-target-note">-</div>
+        <div id="tuner-bar">
+            <div id="tuner-bar-fill"></div>
+            <div id="tuner-bar-marker"></div>
+        </div>
+        <div id="tuner-label">-</div>
+    </div>
 </body>
 
 </html>

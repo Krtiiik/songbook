@@ -23,6 +23,11 @@ export function getNeighbour(id, offset) {
     return index.songs[(((position + offset) % count) + count) % count];
 }
 
+/** 1-based place of the song in the list, the order seeking follows. */
+export function getPosition(id) {
+    return (positions.get(id) ?? 0) + 1;
+}
+
 export function getRandom() {
     return index.songs[Math.floor(Math.random() * index.songs.length)];
 }

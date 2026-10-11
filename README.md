@@ -52,7 +52,8 @@ songs whose titles differ, `separate` keeps a song apart from same-titled ones.
 ## Styling
 
 - `web/css/theme.css`: all colors, fonts and sizes (light and dark theme)
-- `web/css/base.css`: page layout, headers, song list, controls
+- `web/css/base.css`: page layout, top bars, song list, toolbar and panels
+- `web/index.html`: the icon sprite (add icons there)
 - `web/css/song.css`: the song itself (classes from chordpro-renderer)
 
 ## Tests

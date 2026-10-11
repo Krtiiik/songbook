@@ -1,17 +1,25 @@
 // Song view ------------------------------------------------------------------------
 
 import { renderChordDiagrams } from "../chords.js";
-import { getEntry, getNeighbour, getRandom, loadSong, prefetchNeighbours, sourceLabel } from "../data.js";
+import { clampColumns, maxColumns, nextColumns } from "../columns.js";
+import {
+    getEntry, getNeighbour, getPosition, getRandom, index, loadSong, prefetchNeighbours, sourceLabel,
+} from "../data.js";
+import { replayEnter } from "../motion.js";
 import { closeAll, popover } from "../popover.js";
 import { goToSong } from "../router.js";
 import * as settings from "../settings.js";
 import { transposeChord } from "../transpose.js";
 
+const page = document.getElementById("song-page");
 const content = document.getElementById("song-content");
+const header = document.getElementById("song-header");
 const title = document.getElementById("song-title");
 const artist = document.getElementById("song-artist");
 const capo = document.getElementById("song-capo");
-const sources = document.getElementById("song-sources");
+const versions = document.getElementById("song-versions");
+const source = document.getElementById("song-source");
+const position = document.getElementById("song-position");
 
 let current = null; // { id, versionId }
 let renderToken = 0;
@@ -39,6 +47,7 @@ export async function showSong(songId, versionId) {
     title.textContent = version.title;
     artist.textContent = version.artist ?? entry.artist ?? "";
     capo.textContent = version.capo ? `Capo ${version.capo}` : "";
+    position.textContent = `${getPosition(songId)} / ${index.songs.length}`;
     renderSources(song, version);
     document.title = version.title;
 
@@ -47,34 +56,36 @@ export async function showSong(songId, versionId) {
     window.scrollTo(0, 0);
     closeAll();
     setTranspose(0);
+    replayEnter(header, content);
 
     prefetchNeighbours(songId);
 }
 
 /** Version switcher (when there are several) and a link to the original songbook. */
 function renderSources(song, version) {
-    const items = [];
+    const several = song.versions.length > 1;
 
-    if (song.versions.length > 1) {
-        for (const v of song.versions) {
-            const button = document.createElement("button");
-            button.className = "version-button";
-            button.textContent = sourceLabel(v.source);
-            button.title = [v.key && `Tónina ${v.key}`, v.capo && `Capo ${v.capo}`].filter(Boolean).join(", ");
-            button.setAttribute("aria-pressed", String(v.id === version.id));
-            button.addEventListener("click", () => {
-                settings.setVersion(current.id, v.id);
-                goToSong(current.id, v.id, { replace: true });
-            });
-            items.push(button);
-        }
-    } else if (version.url) {
+    versions.classList.toggle("hidden", !several);
+    versions.replaceChildren(...(several ? song.versions : []).map((v) => {
+        const button = document.createElement("button");
+        button.className = "version-button";
+        button.textContent = sourceLabel(v.source);
+        button.title = [v.key && `Tónina ${v.key}`, v.capo && `Capo ${v.capo}`].filter(Boolean).join(", ");
+        button.setAttribute("aria-pressed", String(v.id === version.id));
+        button.addEventListener("click", () => {
+            settings.setVersion(current.id, v.id);
+            goToSong(current.id, v.id, { replace: true });
+        });
+        return button;
+    }));
+
+    const items = [];
+    if (!several && version.url) {
         items.push(Object.assign(document.createElement("span"), {
             className: "version-label",
             textContent: sourceLabel(version.source),
         }));
     }
-
     if (version.url) {
         const link = document.createElement("a");
         link.className = "source-link";
@@ -82,11 +93,10 @@ function renderSources(song, version) {
         link.target = "_blank";
         link.rel = "noopener";
         link.title = `Originál: ${sourceLabel(version.source)}`;
-        link.innerHTML = '<i class="bi bi-box-arrow-up-right"></i>';
+        link.textContent = "zdroj";
         items.push(link);
     }
-
-    sources.replaceChildren(...items);
+    source.replaceChildren(...items);
 }
 
 // Transposition --------------------------------------------------------------------
@@ -113,8 +123,34 @@ function displayedChords() {
 function setZoom(zoom) {
     zoom = Math.min(2, Math.max(0.5, zoom));
     settings.setZoom(zoom);
-    content.style.fontSize = `${zoom}em`;
+    page.style.setProperty("--zoom", zoom);
     document.getElementById("zoom-show").textContent = `${Math.round(zoom * 100)}%`;
+    applyColumns(); // a larger text leaves room for fewer columns
+}
+
+// Columns --------------------------------------------------------------------------
+
+const columnsButton = document.getElementById("columns-toggle");
+
+/** The chosen number of columns, limited to what fits the window now. */
+function fittingColumns() {
+    const max = maxColumns(window.innerWidth, settings.getZoom());
+    return { max, columns: clampColumns(settings.getColumns(), max) };
+}
+
+function applyColumns() {
+    const { max, columns } = fittingColumns();
+    page.style.setProperty("--columns", columns);
+    columnsButton.classList.toggle("hidden", max < 2);
+    document.getElementById("columns-badge").textContent = columns;
+    columnsButton.title = `Sloupce: ${columns}`;
+    columnsButton.setAttribute("aria-label", `Sloupce: ${columns}`);
+}
+
+function cycleColumns() {
+    const { max, columns } = fittingColumns();
+    settings.setColumns(nextColumns(columns, max));
+    applyColumns();
 }
 
 // Moving between songs ---------------------------------------------------------------
@@ -168,6 +204,9 @@ export function setupSong({ isActive }) {
     byId("zoom-out").addEventListener("click", () => setZoom(settings.getZoom() - 0.25));
     byId("zoom-reset").addEventListener("click", () => setZoom(1));
     setZoom(settings.getZoom());
+
+    columnsButton.addEventListener("click", cycleColumns);
+    window.addEventListener("resize", applyColumns);
 
     const chordsBox = byId("chords-box");
     popover(byId("chords-toggle"), chordsBox, { onOpen: () => renderChordDiagrams(chordsBox, displayedChords()) });

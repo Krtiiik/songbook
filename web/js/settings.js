@@ -39,6 +39,10 @@ export function applyTheme() {
 export const getZoom = () => read("zoom", 1);
 export const setZoom = (zoom) => write("zoom", zoom);
 
+// Number of columns the reader flows songs into (limited to what fits the window when shown)
+export const getColumns = () => read("columns", 1);
+export const setColumns = (columns) => write("columns", columns);
+
 // The version (source) last picked for a song
 export const getVersion = (songId) => read(`version:${songId}`);
 export const setVersion = (songId, versionId) => write(`version:${songId}`, versionId);
