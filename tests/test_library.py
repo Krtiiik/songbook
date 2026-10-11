@@ -1,4 +1,4 @@
-"""Tests for song matching. Run with: py -m unittest discover tests"""
+"""Tests for song matching. Run with: uv run python -m unittest discover tests"""
 
 import sys
 import unittest

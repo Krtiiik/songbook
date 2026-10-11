@@ -1,0 +1,14 @@
+[project]
+name = "songbook"
+version = "0.1.0"
+description = "Song lyrics with guitar chords, built as a website and a PDF"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chordpro-renderer[pdf,flask]==1.1.1",
+    "playwright==1.62.0",
+]
+
+[tool.uv]
+# Scripts in bin/, not an installable package
+package = false

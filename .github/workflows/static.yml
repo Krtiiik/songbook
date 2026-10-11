@@ -25,16 +25,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
-          cache: pip
+          enable-cache: true
 
       - name: Install dependencies
         run: |
-          python -m pip install -r requirements.txt
-          python -m playwright install --with-deps chromium
+          uv sync --locked
+          uv run playwright install --with-deps chromium
 
       # Scraped songs from the last build: used when a source cannot be scraped
       - name: Restore scraped songs
@@ -45,7 +44,7 @@ jobs:
           restore-keys: sources-
 
       - name: Build site
-        run: python bin/build.py
+        run: uv run bin/build.py
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

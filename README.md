@@ -10,9 +10,9 @@ switch between the versions.
 ## Building
 
 ```
-py -m pip install -r requirements.txt
-py -m playwright install chromium   # only needed for scraping JRadl
-py bin/build.py
+uv sync
+uv run playwright install chromium   # only needed for scraping JRadl
+uv run bin/build.py
 ```
 
 The result is in `dist/`. To build and serve it at http://localhost:8000:
@@ -22,7 +22,7 @@ bin/build_and_serve.ps1
 bin/build_and_serve.ps1 -BuildArgs --no-scrape,--no-pdf   # faster, uses the last scrape
 ```
 
-`py bin/build.py --help` lists all options. Every push to `main` builds and
+`uv run bin/build.py --help` lists all options. Every push to `main` builds and
 deploys the site (`.github/workflows/static.yml`).
 
 ## Layout
@@ -59,6 +59,6 @@ songs whose titles differ, `separate` keeps a song apart from same-titled ones.
 ## Tests
 
 ```
-py -m unittest discover tests
+uv run python -m unittest discover tests
 node --experimental-detect-module --test tests/
 ```
