@@ -332,6 +332,8 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
 }
 
 #song-capo {
+  display: inline-block;
+  margin-top: 10px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 3px 10px;
