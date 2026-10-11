@@ -401,8 +401,8 @@ body:has(#search-input:focus) #letter-rail {
   font-weight: 650;
   line-height: 1;
 
-  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 300ms, background-color 300ms,
-    border-color 300ms, color 300ms;
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms, background-color 180ms,
+    border-color 180ms, color 180ms;
 }
 
 .version-chip[data-depth="0"] {
@@ -663,7 +663,7 @@ body[data-view="song"]::after {
   font-family: var(--font-mono);
   font-size: 30px;
   font-weight: 600;
-  transition: color 0.2s ease-out;
+  transition: color 0.12s ease-out;
 }
 
 #tuner-target-note.tuned {
@@ -684,7 +684,7 @@ body[data-view="song"]::after {
   border-radius: inherit;
   background: var(--tune-off);
   opacity: 0.35;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.12s ease;
 }
 
 #tuner-bar-fill[data-closeness="good"] {
@@ -711,7 +711,7 @@ body[data-view="song"]::after {
   border-radius: 999px;
   background: var(--tune-marker);
   transform: translateX(-50%);
-  transition: left 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: left 0.12s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 #tuner-label {
@@ -750,7 +750,7 @@ body[data-view="song"]::after {
 }
 
 #settings-dialog[open] {
-  animation: rise 150ms ease-out;
+  animation: rise 90ms ease-out;
 }
 
 #settings-dialog::backdrop {
@@ -909,7 +909,7 @@ body:has(#settings-dialog[open]) {
 }
 
 .enter {
-  animation: rise 150ms ease-out;
+  animation: rise 90ms ease-out;
 }
 
 /* Boxes with the `slide` class (see popover.js) drop in from the top bar and rise back out */
@@ -933,11 +933,11 @@ body:has(#settings-dialog[open]) {
 }
 
 .popover.slide {
-  animation: slide-down 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: slide-down 120ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .popover.slide.closing {
-  animation: slide-up 140ms ease-in forwards;
+  animation: slide-up 85ms ease-in forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

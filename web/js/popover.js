@@ -4,7 +4,7 @@
 // SLIDE_OUT_MS before it is hidden. Opening needs no help, the CSS animation restarts
 // whenever the box stops being `display: none`.
 
-const SLIDE_OUT_MS = 140; // keep in step with `slide-up` in base.css
+const SLIDE_OUT_MS = 85; // keep in step with `slide-up` in base.css
 
 const popovers = [];
 
