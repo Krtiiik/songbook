@@ -1,9 +1,6 @@
 <p align="center">
   <a href="https://krtiiik.github.io/songbook">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/banner-dark.svg">
-      <img alt="Krtkův Zpěvník: open the songbook" src="docs/banner-light.svg">
-    </picture>
+    <img alt="Krtkův Zpěvník: open the songbook" src="docs/banner.svg">
   </a>
 </p>
 
