@@ -161,6 +161,12 @@ function setupRailSeek() {
     rail.addEventListener("contextmenu", (event) => event.preventDefault()); // long press on a phone
 }
 
+/** Empties the search box so the whole list shows again. */
+function resetSearch() {
+    searchInput.value = "";
+    renderList();
+}
+
 export function setupIndex() {
     fuse = new Fuse(index.songs, {
         keys: ["title", "artist"],
@@ -176,10 +182,17 @@ export function setupIndex() {
         if (event.key === "Enter" && shownSongs.length > 0) {
             goToSong(shownSongs[0].id);
         } else if (event.key === "Escape") {
-            searchInput.value = "";
-            renderList();
+            resetSearch();
         }
     });
+
+    // The cross is a button inside the label, so keep focus in the box ready for the next query
+    document.getElementById("search-clear").addEventListener("click", () => {
+        resetSearch();
+        searchInput.focus();
+    });
+    // Coming back from a song starts a fresh search; the browser's Back button keeps the old one
+    document.getElementById("index-link").addEventListener("click", resetSearch);
 
     let scheduled = false;
     window.addEventListener("scroll", () => {

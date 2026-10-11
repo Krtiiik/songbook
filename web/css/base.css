@@ -14,6 +14,7 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
+  overflow-x: clip; /* a song swiped aside must not make the page scroll sideways */
 
   scrollbar-color: var(--border) var(--bg);
 }
@@ -191,6 +192,11 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
 
 #search-input::placeholder {
   color: var(--comment);
+}
+
+/* The browser's own clear cross only shows while typing; #search-clear is always there */
+#search-input::-webkit-search-cancel-button {
+  display: none;
 }
 
 #search-box:focus-within {
