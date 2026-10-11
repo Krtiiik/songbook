@@ -77,8 +77,8 @@
    also be inside sections, hence the >. */
 #song-content> :is(.cp-section, .cp-chorus-ref, .cp-comment) {
   break-inside: avoid;
-  margin: 0 0 1.1em 2.2em;
-  padding-left: 0.75em;
+  margin: 0 0 1.1em 1.5em;
+  padding-left: 0.6em;
   border-left: 1.5px solid transparent;
 }
 
