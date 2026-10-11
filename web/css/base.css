@@ -164,7 +164,7 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
 
 #search-box {
   position: sticky;
-  top: var(--topbar-height);
+  top: calc(var(--topbar-height) + 4px); /* room for the focus outline, which would be clipped by the top bar */
   z-index: 4;
 
   display: flex;
