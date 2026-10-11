@@ -5,8 +5,9 @@ description = "Song lyrics with guitar chords, built as a website and a PDF"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "chordpro-renderer[pdf,flask]==1.1.1",
+    "chordpro-renderer[flask]==1.1.1",
     "playwright==1.62.0",
+    "typst==0.15.0",
 ]
 
 [tool.uv]

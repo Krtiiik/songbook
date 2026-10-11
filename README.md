@@ -41,6 +41,8 @@ deploys the site (`.github/workflows/static.yml`).
 | `songs/.overrides.toml` | manual fixes to matching songs across sources |
 | `bin/build.py` | scrapes, matches and writes the website data and PDF |
 | `bin/library.py` | loading songs and matching versions of the same song |
+| `bin/pdf.py` | turns the songs into data for the PDF and runs Typst |
+| `pdf/songbook.typ` | the PDF's layout ([Typst](https://typst.app)); `pdf/fonts/` holds IBM Plex, which it uses |
 | `bin/scraping/` | one scraper per online songbook |
 | `web/` | the website: plain HTML, CSS and JavaScript modules, no build step |
 | `.cache/sources/` | scraped songs (not committed) |
@@ -62,6 +64,14 @@ songs whose titles differ, `separate` keeps a song apart from same-titled ones.
 - `web/css/base.css`: page layout, top bars, song list, toolbar and panels
 - `web/index.html`: the icon sprite (add icons there)
 - `web/css/song.css`: the song itself (classes from chordpro-renderer)
+
+## The PDF
+
+`pdf/songbook.typ` lays out `songbook.pdf`: a cover, the contents, then each song on a page of its own.
+A short song is one column beside its chord diagrams; a longer one is two columns with the diagrams along the
+bottom, and the text shrinks a little before a song is allowed onto a second page. Typst is a Python package
+(installed by `uv sync`), so nothing else is needed. To preview a change, build with `--no-scrape` to get
+only my own songs quickly.
 
 ## Tests
 

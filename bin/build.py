@@ -15,9 +15,10 @@ import json
 import shutil
 from pathlib import Path
 
-from chordpro import Song, build_chord_semi_to_name, parse, render, render_many
+from chordpro import Song, build_chord_semi_to_name, parse, render
 
 import library
+import pdf
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -130,10 +131,11 @@ def build_data(config: library.Config, groups: list[library.SongGroup], output: 
     write_json(output / "index.json", index)
 
 
-def build_pdf(groups: list[library.SongGroup], output_file: Path):
-    """One PDF with the default version of each song."""
-    content = render_many([group.versions[0].song for group in groups], SEMI_TO_NAME, format="pdf")
-    output_file.write_bytes(content)
+def build_pdf(config: library.Config, groups: list[library.SongGroup], output_file: Path):
+    """One PDF with the default version of each song, laid out by Typst (see pdf.py)."""
+    for group in groups:
+        drop_default_labels(group.versions[0].song)
+    pdf.build_pdf(config, groups, output_file)
 
 
 # Main ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,7 +160,7 @@ def main(args):
 
     build_data(config, groups, args.output, pdf=args.pdf)
     if args.pdf:
-        build_pdf(groups, args.output / "songbook.pdf")
+        build_pdf(config, groups, args.output / "songbook.pdf")
 
 
 if __name__ == "__main__":
