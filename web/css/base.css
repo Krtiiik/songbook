@@ -339,6 +339,10 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   padding: 3px 10px;
 }
 
+#song-capo:empty {
+  display: none;
+}
+
 /* Version switcher: one segment per source */
 #song-versions {
   display: inline-flex;
