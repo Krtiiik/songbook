@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="t d">
+  <title id="t">Krtkův Zpěvník</title>
+  <desc id="d">Songs with guitar chords. Open the songbook at krtiiik.github.io/songbook.</desc>
+
+  <rect x="0.5" y="0.5" width="1199" height="299" rx="16" fill="#fbfaf7" stroke="#e7e2d7"/>
+
+  <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+    <text x="64" y="128" font-size="48" font-weight="650" letter-spacing="-0.5" fill="#1f1c17">Krtkův Zpěvník</text>
+    <text x="64" y="166" font-size="19" fill="#6a6458">Písně s akordy z vlastní tvorby a online zpěvníků</text>
+
+    <rect x="64" y="198" width="226" height="46" rx="23" fill="#f4e8d2"/>
+    <text x="92" y="227" font-size="17" font-weight="600" fill="#7a4600">Otevřít zpěvník</text>
+    <path d="M246 221h20m-7-7 7 7-7 7" fill="none" stroke="#7a4600" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="312" y="226" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="14" fill="#6a6458">krtiiik.github.io/songbook</text>
+  </g>
+
+  <rect x="700.5" y="44.5" width="436" height="211" rx="20" fill="#ffffff" stroke="#e7e2d7"/>
+
+  <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="21" fill="#1f1c17">
+    <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-weight="600" font-size="16">
+      <text x="724" y="124" font-weight="400" font-size="14" fill="#6a6458">1.</text>
+      <text x="756" y="96" fill="#9a5b00">Am</text>
+      <text x="852" y="96" fill="#9a5b00">G</text>
+      <text x="982" y="96" fill="#9a5b00">Am</text>
+    </g>
+    <text x="756" y="124">Ach synku, synku, doma-li jsi,</text>
+
+    <rect x="742" y="152" width="1.5" height="62" fill="#9a5b00"/>
+    <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-weight="600" font-size="16">
+      <text x="724" y="200" font-size="14" fill="#9a5b00">R:</text>
+      <text x="756" y="172" fill="#9a5b00">C</text>
+      <text x="882" y="172" fill="#9a5b00">G</text>
+    </g>
+    <text x="756" y="200">Doma, doma, matičko,</text>
+  </g>
+</svg>

@@ -1,3 +1,12 @@
+<p align="center">
+  <a href="https://krtiiik.github.io/songbook">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/banner-dark.svg">
+      <img alt="Krtkův Zpěvník: open the songbook" src="docs/banner-light.svg">
+    </picture>
+  </a>
+</p>
+
 # Songbook
 
 My collection of song lyrics with guitar chords, together with songs from
