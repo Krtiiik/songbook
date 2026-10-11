@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { groupByLetter, letterOf } from "../web/js/letters.js";
+import { groupByLetter, letterOf, railIndexAt } from "../web/js/letters.js";
 
 test("plain letters are upper-cased", () => {
     assert.equal(letterOf("ach synku"), "A");
@@ -45,4 +45,17 @@ test("groups consecutive songs with the same letter, in order", () => {
 
 test("no songs give no groups", () => {
     assert.deepEqual(groupByLetter([]), []);
+});
+
+test("a pointer position maps to the rail letter beneath it, clamped at both ends", () => {
+    assert.equal(railIndexAt(100, 100, 200, 10), 0);
+    assert.equal(railIndexAt(155, 100, 200, 10), 5);
+    assert.equal(railIndexAt(200, 100, 200, 10), 9);
+    assert.equal(railIndexAt(-50, 100, 200, 10), 0);
+    assert.equal(railIndexAt(900, 100, 200, 10), 9);
+});
+
+test("an empty or zero-height rail resolves to the first letter", () => {
+    assert.equal(railIndexAt(50, 100, 100, 10), 0);
+    assert.equal(railIndexAt(50, 100, 200, 0), 0);
 });

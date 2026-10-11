@@ -33,3 +33,10 @@ export function groupByLetter(songs) {
     }
     return groups;
 }
+
+/** Index of the rail letter under a pointer: `y` is clamped into the rail's letters, which span top..bottom evenly. */
+export function railIndexAt(y, top, bottom, count) {
+    if (count <= 0 || bottom <= top) return 0;
+    const fraction = (Math.min(Math.max(y, top), bottom) - top) / (bottom - top);
+    return Math.min(count - 1, Math.floor(fraction * count));
+}
