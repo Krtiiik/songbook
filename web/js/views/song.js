@@ -10,6 +10,7 @@ import { closeAll, popover } from "../popover.js";
 import { goToSong } from "../router.js";
 import * as settings from "../settings.js";
 import { transposeChord } from "../transpose.js";
+import { sourceInitial, stackOrder } from "../versions.js";
 
 const page = document.getElementById("song-page");
 const content = document.getElementById("song-content");
@@ -18,8 +19,12 @@ const title = document.getElementById("song-title");
 const artist = document.getElementById("song-artist");
 const capo = document.getElementById("song-capo");
 const versions = document.getElementById("song-versions");
+const versionButton = document.getElementById("version-toggle");
+const versionStack = document.getElementById("version-stack");
 const source = document.getElementById("song-source");
 const position = document.getElementById("song-position");
+
+const MAX_DEPTH = 3; // circles deeper than the third are hidden; keep in step with base.css
 
 let current = null; // { id, versionId }
 let renderToken = 0;
@@ -61,24 +66,26 @@ export async function showSong(songId, versionId) {
     prefetchNeighbours(songId);
 }
 
-/** Version switcher (when there are several) and a link to the original songbook. */
+/** Version button, its pills and a link to the original songbook. */
 function renderSources(song, version) {
-    const several = song.versions.length > 1;
+    renderVersionButton(song, version);
 
-    versions.classList.toggle("hidden", !several);
-    versions.replaceChildren(...(several ? song.versions : []).map((v) => {
+    versions.replaceChildren(...song.versions.map((v) => {
         const button = document.createElement("button");
         button.className = "version-button";
         button.textContent = sourceLabel(v.source);
         button.title = [v.key && `Tónina ${v.key}`, v.capo && `Capo ${v.capo}`].filter(Boolean).join(", ");
         button.setAttribute("aria-pressed", String(v.id === version.id));
         button.addEventListener("click", () => {
+            closeAll();
+            if (v.id === current.versionId) return;
             settings.setVersion(current.id, v.id);
             goToSong(current.id, v.id, { replace: true });
         });
         return button;
     }));
 
+    const several = song.versions.length > 1;
     const items = [];
     if (!several && version.url) {
         items.push(Object.assign(document.createElement("span"), {
@@ -97,6 +104,34 @@ function renderSources(song, version) {
         items.push(link);
     }
     source.replaceChildren(...items);
+}
+
+/**
+ * A stack of circles, one per version, the shown one in front. The circles are kept while
+ * the reader stays on the same song, so that switching versions moves them (CSS transition
+ * on `data-depth`) instead of redrawing them.
+ */
+function renderVersionButton(song, version) {
+    const ids = song.versions.map((v) => v.id);
+    const stackKey = [song.id, ...ids].join("|");
+
+    if (versionStack.dataset.key !== stackKey) {
+        versionStack.dataset.key = stackKey;
+        versionStack.replaceChildren(...song.versions.map((v) => Object.assign(document.createElement("span"), {
+            className: "version-chip",
+            textContent: sourceInitial(sourceLabel(v.source)),
+        })));
+    }
+
+    const order = stackOrder(ids, version.id);
+    [...versionStack.children].forEach((chip, i) => {
+        chip.dataset.depth = Math.min(order.indexOf(ids[i]), MAX_DEPTH);
+    });
+
+    const label = `Verze: ${sourceLabel(version.source)}`;
+    versionButton.title = label;
+    versionButton.setAttribute("aria-label", label);
+    versionButton.classList.remove("hidden");
 }
 
 // Transposition --------------------------------------------------------------------
@@ -193,6 +228,8 @@ function setupKeys(isActive) {
 
 export function setupSong({ isActive }) {
     const byId = (id) => document.getElementById(id);
+
+    popover(versionButton, byId("version-box"));
 
     popover(byId("transpose-toggle"), byId("transpose-box"));
     byId("transpose-up").addEventListener("click", () => setTranspose(transpose + 1));

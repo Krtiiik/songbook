@@ -11,7 +11,8 @@ online songbooks ([JRadl](https://zpevnik.jradl.cz), [Bratrův zpěvník](https:
 published as a website on GitHub Pages and as a PDF.
 
 When a song is in several songbooks, the website shows it once and lets you
-switch between the versions.
+switch between the versions with the round button in the top bar (a circle with
+the first letter of the source, the other versions peeking out behind it).
 
 ## Building
 

@@ -66,6 +66,7 @@
         </div>
         <div id="song-position"></div>
         <div class="topbar-side topbar-end">
+            <button id="version-toggle" class="button hidden" aria-haspopup="true" aria-expanded="false"><span id="version-stack" aria-hidden="true"></span></button>
             <button id="random-song" class="button" title="Náhodná píseň" aria-label="Náhodná píseň"><svg class="icon" aria-hidden="true"><use href="#i-random"/></svg></button>
             <button class="button theme-toggle" title="Světlý / tmavý režim" aria-label="Světlý / tmavý režim"><svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
         </div>
@@ -80,7 +81,6 @@
         </div>
 
         <div id="song-meta">
-            <div id="song-versions" role="group" aria-label="Verze písně" class="hidden"></div>
             <span id="song-source"></span>
         </div>
     </header>
@@ -99,6 +99,11 @@
         <button id="chords-toggle" class="tool" title="Akordy" aria-label="Akordy"><svg class="icon" aria-hidden="true"><use href="#i-chords"/></svg></button>
         <span class="toolbar-divider" aria-hidden="true"></span>
         <button id="tuner-toggle" class="tool" title="Ladička" aria-label="Ladička"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg></button>
+    </div>
+
+    <!-- Opens under the top bar, from the version button -->
+    <div id="version-box" class="popover slide hidden">
+        <div id="song-versions" role="group" aria-label="Verze písně"></div>
     </div>
 
     <div id="transpose-box" class="popover hidden">
