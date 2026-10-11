@@ -6,7 +6,8 @@
 //   letters.js    letter sections of the list, columns.js how many song columns fit
 //   transpose.js  chord transposition, chords.js chord diagrams, tuner.js tuner
 //   versions.js   letters and stacking order of the version button
-//   motion.js     the fade-and-rise when a view or song appears
+//   motion.js     the fade-and-rise when a view or song appears, and a song following a swipe
+//   swipe.js      when a sideways drag counts as a swipe between songs
 //   settings.js   preferences remembered in the browser (theme, zoom, versions)
 //   offline.js    registers the service worker that makes the site installable
 
