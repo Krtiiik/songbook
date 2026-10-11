@@ -14,23 +14,18 @@
     <text x="312" y="226" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="14" fill="#a59e8f">krtiiik.github.io/songbook</text>
   </g>
 
-  <rect x="700.5" y="44.5" width="436" height="211" rx="20" fill="#1d1a15" stroke="#2d2921"/>
+  <rect x="650.5" y="44.5" width="490" height="211" rx="20" fill="#1d1a15" stroke="#2d2921"/>
 
-  <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="21" fill="#ece7dc">
-    <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-weight="600" font-size="16">
-      <text x="724" y="124" font-weight="400" font-size="14" fill="#a59e8f">1.</text>
-      <text x="756" y="96" fill="#e5a93d">Am</text>
-      <text x="852" y="96" fill="#e5a93d">G</text>
-      <text x="982" y="96" fill="#e5a93d">Am</text>
+  <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="20" fill="#ece7dc">
+    <rect x="680" y="90" width="1.5" height="120" fill="#e5a93d"/>
+    <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-weight="600" font-size="16" fill="#e5a93d">
+      <text x="706" y="108">F#m</text>
+      <text x="891" y="108">A</text>
+      <text x="706" y="172">B</text>
+      <text x="850" y="172">A</text>
+      <text x="913" y="172">E</text>
     </g>
-    <text x="756" y="124">Ach synku, synku, doma-li jsi,</text>
-
-    <rect x="742" y="152" width="1.5" height="62" fill="#e5a93d"/>
-    <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-weight="600" font-size="16">
-      <text x="724" y="200" font-size="14" fill="#e5a93d">R:</text>
-      <text x="756" y="172" fill="#e5a93d">C</text>
-      <text x="882" y="172" fill="#e5a93d">G</text>
-    </g>
-    <text x="756" y="200">Doma, doma, matičko,</text>
+    <text x="706" y="134">Dal bych si Bráníček, on draze jenom chutná.</text>
+    <text x="706" y="198">Pohladí jazýček, a to dobře mi dělá.</text>
   </g>
 </svg>
