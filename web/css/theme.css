@@ -32,6 +32,9 @@
   /* Only floating things (toolbar, panels) cast a shadow */
   --shadow: 0 8px 28px rgba(31, 28, 23, 0.1);
 
+  /* Dims the page behind a modal */
+  --scrim: rgba(31, 28, 23, 0.4);
+
   /* Song sections (left rule) */
   --accent-chorus: var(--accent);
   --accent-tab: var(--comment);
@@ -65,6 +68,7 @@
   --accent-ink: #e5a93d;
 
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --scrim: rgba(0, 0, 0, 0.6);
 
   --diagram-filter: invert(80%);
 

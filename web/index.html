@@ -37,17 +37,65 @@
         <symbol id="i-external" viewBox="0 0 24 24"><path d="M13.5 4H20v6.5M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
         <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
         <symbol id="i-reset"viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></symbol>
+        <symbol id="i-settings" viewBox="0 0 24 24"><path d="M10.21 4.82L10.5 2.52L13.5 2.52L13.79 4.82L15.81 5.66L17.64 4.23L19.77 6.36L18.34 8.19L19.18 10.21L21.48 10.5L21.48 13.5L19.18 13.79L18.34 15.81L19.77 17.64L17.64 19.77L15.81 18.34L13.79 19.18L13.5 21.48L10.5 21.48L10.21 19.18L8.19 18.34L6.36 19.77L4.23 17.64L5.66 15.81L4.82 13.79L2.52 13.5L2.52 10.5L4.82 10.21L5.66 8.19L4.23 6.36L6.36 4.23L8.19 5.66z"/><circle cx="12" cy="12" r="3"/></symbol>
+        <symbol id="i-system" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16.5V20"/></symbol>
     </svg>
+
+    <!-- Settings: a modal opened from the gear in either top bar ------------------------>
+    <dialog id="settings-dialog" aria-labelledby="settings-title">
+        <div class="dialog-body">
+            <header class="dialog-bar">
+                <button id="settings-back" class="button hidden" title="Zpět" aria-label="Zpět"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></button>
+                <h2 id="settings-title">Nastavení</h2>
+                <button id="settings-close" class="button" title="Zavřít" aria-label="Zavřít"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
+            </header>
+
+            <section id="settings-root" class="settings-page">
+                <div class="settings-group">
+                    <div class="settings-label">Vzhled</div>
+                    <div id="theme-choice" class="segmented" role="group" aria-label="Vzhled">
+                        <button class="segment" data-choice="light" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg>Světlý</button>
+                        <button class="segment" data-choice="dark" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg>Tmavý</button>
+                        <button class="segment" data-choice="system" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-system"/></svg>Systém</button>
+                    </div>
+                </div>
+                <button id="open-tuner" class="settings-link">
+                    <svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg>
+                    <span>Ladička</span>
+                    <svg class="icon" aria-hidden="true"><use href="#i-next"/></svg>
+                </button>
+            </section>
+
+            <section id="settings-tuner" class="settings-page hidden">
+                <select id="tuner-instrument" class="control-select" aria-label="Nástroj">
+                    <option value="guitar">Kytara</option>
+                    <option value="bass">Baskytara</option>
+                    <option value="ukulele">Ukulele</option>
+                    <option value="violin">Housle</option>
+                    <option value="cello">Violoncello</option>
+                    <option value="banjo">Banjo</option>
+                    <option value="mandolin">Mandolína</option>
+                    <option value="chromatic">Chromatická</option>
+                </select>
+                <div id="tuner-target-note">-</div>
+                <div id="tuner-bar">
+                    <div id="tuner-bar-fill"></div>
+                    <div id="tuner-bar-marker"></div>
+                </div>
+                <div id="tuner-label">-</div>
+                <div id="tuner-status"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg><span></span></div>
+            </section>
+        </div>
+    </dialog>
 
     <!-- Song list ------------------------------------------------------------------>
     <header id="index-header" class="topbar">
         <div class="topbar-side">
             <a id="pdf-link" class="button hidden" href="songbook.pdf" title="PDF" aria-label="PDF"><svg class="icon" aria-hidden="true"><use href="#i-pdf"/></svg></a>
+            <button class="button settings-toggle" title="Nastavení" aria-label="Nastavení" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg></button>
         </div>
         <h1 id="index-title"></h1>
-        <div class="topbar-side topbar-end">
-            <button class="button theme-toggle" title="Světlý / tmavý režim" aria-label="Světlý / tmavý režim"><svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
-        </div>
+        <div class="topbar-side topbar-end"></div>
     </header>
 
     <main id="index">
@@ -66,12 +114,12 @@
     <header id="song-topbar" class="topbar">
         <div class="topbar-side">
             <a id="index-link" class="button" href="#" title="Seznam písní" aria-label="Seznam písní"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></a>
+            <button class="button settings-toggle" title="Nastavení" aria-label="Nastavení" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg></button>
         </div>
         <div id="song-position"></div>
         <div class="topbar-side topbar-end">
             <button id="version-toggle" class="button hidden" aria-haspopup="true" aria-expanded="false"><span id="version-stack" aria-hidden="true"></span></button>
             <button id="random-song" class="button" title="Náhodná píseň" aria-label="Náhodná píseň"><svg class="icon" aria-hidden="true"><use href="#i-random"/></svg></button>
-            <button class="button theme-toggle" title="Světlý / tmavý režim" aria-label="Světlý / tmavý režim"><svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
         </div>
     </header>
 
@@ -96,8 +144,6 @@
         <button id="zoom-toggle" class="tool" title="Velikost písma" aria-label="Velikost písma"><svg class="icon" aria-hidden="true"><use href="#i-text-size"/></svg></button>
         <button id="columns-toggle" class="tool hidden" title="Sloupce" aria-label="Sloupce"><svg class="icon" aria-hidden="true"><use href="#i-columns"/></svg><span id="columns-badge" aria-hidden="true"></span></button>
         <button id="chords-toggle" class="tool" title="Akordy" aria-label="Akordy"><svg class="icon" aria-hidden="true"><use href="#i-chords"/></svg></button>
-        <span class="toolbar-divider" aria-hidden="true"></span>
-        <button id="tuner-toggle" class="tool" title="Ladička" aria-label="Ladička"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg></button>
     </div>
 
     <!-- Opens under the top bar, from the version button -->
@@ -127,26 +173,6 @@
     </div>
 
     <div id="chords-box" class="popover hidden"></div>
-
-    <div id="tuner-box" class="popover hidden">
-        <div class="popover-title">Ladička</div>
-        <select id="tuner-instrument" class="control-select" aria-label="Nástroj">
-            <option value="guitar">Kytara</option>
-            <option value="bass">Baskytara</option>
-            <option value="ukulele">Ukulele</option>
-            <option value="violin">Housle</option>
-            <option value="cello">Violoncello</option>
-            <option value="banjo">Banjo</option>
-            <option value="mandolin">Mandolína</option>
-            <option value="chromatic">Chromatická</option>
-        </select>
-        <div id="tuner-target-note">-</div>
-        <div id="tuner-bar">
-            <div id="tuner-bar-fill"></div>
-            <div id="tuner-bar-marker"></div>
-        </div>
-        <div id="tuner-label">-</div>
-    </div>
 </body>
 
 </html>

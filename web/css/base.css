@@ -67,15 +67,6 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   stroke-linejoin: round;
 }
 
-.icon-sun,
-[data-theme="dark"] .icon-moon {
-  display: none;
-}
-
-[data-theme="dark"] .icon-sun {
-  display: inline-block;
-}
-
 /* Buttons ********************************************************************/
 
 .button {
@@ -164,7 +155,7 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
 
 #search-box {
   position: sticky;
-  top: var(--topbar-height);
+  top: calc(var(--topbar-height) + 4px); /* room for the focus outline, which would be clipped by the top bar */
   z-index: 4;
 
   display: flex;
@@ -546,18 +537,6 @@ body[data-view="song"]::after {
   color: var(--accent);
 }
 
-#tuner-toggle.listening {
-  background: var(--listening-soft);
-  color: var(--listening);
-}
-
-.toolbar-divider {
-  width: 1px;
-  height: 24px;
-  margin: 0 4px;
-  background: var(--border);
-}
-
 /* Number of song columns, shown on the columns button */
 #columns-badge {
   position: absolute;
@@ -670,11 +649,7 @@ body[data-view="song"]::after {
   color: var(--chord);
 }
 
-/* Tuner */
-
-#tuner-box {
-  width: 280px;
-}
+/* Tuner: a page of the settings modal */
 
 .control-select {
   width: 100%;
@@ -744,6 +719,146 @@ body[data-view="song"]::after {
   font-size: 13px;
   letter-spacing: 0.05em;
   color: var(--comment);
+}
+
+#tuner-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--comment);
+}
+
+#tuner-status.listening {
+  color: var(--listening);
+}
+
+/* Settings modal *************************************************************/
+
+#settings-dialog {
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 2 * var(--gutter)));
+  max-height: calc(100dvh - 2 * var(--gutter));
+  padding: 0;
+  overflow: hidden;
+
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow);
+}
+
+#settings-dialog[open] {
+  animation: rise 150ms ease-out;
+}
+
+#settings-dialog::backdrop {
+  background: var(--scrim);
+}
+
+/* The page behind must not scroll while the modal is up */
+body:has(#settings-dialog[open]) {
+  overflow: hidden;
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+
+.dialog-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 6px 6px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dialog-bar .button:first-child:not(.hidden) {
+  margin-left: -10px; /* the back arrow takes the place of the left padding */
+}
+
+.dialog-bar h2 {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 18px 16px 20px;
+  overflow-y: auto;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--comment);
+}
+
+/* A setting with a page of its own: label on the left, arrow on the right */
+.settings-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  background: var(--field);
+  text-align: left;
+}
+
+.settings-link span {
+  flex: 1;
+}
+
+.settings-link > .icon:last-child {
+  color: var(--comment);
+}
+
+/* Segmented switch: one segment per choice, the chosen one filled */
+.segmented {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--field);
+}
+
+.segment {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: var(--comment);
+}
+
+.segment .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.segment[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 600;
 }
 
 /* Seek buttons (wide screens; phones swipe) **********************************/
@@ -827,6 +942,7 @@ body[data-view="song"]::after {
 
 @media (prefers-reduced-motion: reduce) {
   .enter,
+  #settings-dialog[open],
   .popover.slide,
   .popover.slide.closing {
     animation: none;

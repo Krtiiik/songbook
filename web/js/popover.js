@@ -1,4 +1,4 @@
-// Toggled boxes (version, transpose, zoom, chords, tuner) ----------------------------
+// Toggled boxes (version, transpose, zoom, chords) -----------------------------------
 // A button toggles its box; clicking anywhere else or pressing Escape closes it.
 // A box with the `slide` class animates out too: it keeps showing (as `.closing`) for
 // SLIDE_OUT_MS before it is hidden. Opening needs no help, the CSS animation restarts
