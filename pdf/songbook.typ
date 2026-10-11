@@ -58,7 +58,7 @@
       #set par(leading: 0.08em)
       #text(font: serif, weight: 700, size: px(116), tracking: -0.01em)[#data.title]
       #v(px(28))
-      #block(width: px(460), text(size: px(24))[Písně na kytaru, každá se svými akordy.])
+      #block(width: px(460), text(size: px(24))[Písničky a akordy...])
     ])
     #place(bottom + left, dx: px(72), dy: -px(64), block(
       width: 100% - px(144),
