@@ -44,13 +44,13 @@ async function glide(element, to, duration, easing) {
 
 /** A released drag that is not a swipe: settle back into place. */
 export async function springBack(element) {
-    await glide(element, { transform: "translateX(0px)", opacity: "1" }, 220, "cubic-bezier(0.22, 1, 0.36, 1)");
+    await glide(element, { transform: "translateX(0px)", opacity: "1" }, 130, "cubic-bezier(0.22, 1, 0.36, 1)");
     clearDrag(element);
 }
 
 /** A swipe: carry the element on out of sight, `x` px away. It stays out of sight until `slideIn`. */
 export function flingOut(element, x) {
-    return glide(element, { transform: `translateX(${x}px)`, opacity: "0" }, 160, "ease-in");
+    return glide(element, { transform: `translateX(${x}px)`, opacity: "0" }, 100, "ease-in");
 }
 
 /** The next song arrives from `fromX` px away, the side the previous one left towards. */
@@ -58,6 +58,6 @@ export async function slideIn(element, fromX) {
     element.getAnimations().forEach((animation) => animation.cancel());
     element.style.transform = `translateX(${fromX}px)`;
     element.style.opacity = "0";
-    await glide(element, { transform: "translateX(0px)", opacity: "1" }, 260, "cubic-bezier(0.22, 1, 0.36, 1)");
+    await glide(element, { transform: "translateX(0px)", opacity: "1" }, 160, "cubic-bezier(0.22, 1, 0.36, 1)");
     clearDrag(element);
 }
