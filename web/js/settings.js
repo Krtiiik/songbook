@@ -31,8 +31,17 @@ export function setTheme(theme) {
     applyTheme();
 }
 
+// The browser chrome (status and navigation bar of an installed app) takes this colour; it is
+// the page background of each theme, so keep it equal to --bg in theme.css.
+const CHROME_COLOR = { light: "#fbfaf7", dark: "#15130f" };
+
 export function applyTheme() {
-    document.documentElement.dataset.theme = getTheme();
+    const theme = getTheme();
+    document.documentElement.dataset.theme = theme;
+    // The meta tags in index.html follow the system theme; the reader's own pick may differ
+    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
+        meta.content = CHROME_COLOR[theme];
+    }
 }
 
 // Song text size, 1 = 100 %
