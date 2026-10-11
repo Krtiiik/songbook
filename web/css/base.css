@@ -343,7 +343,71 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   display: none;
 }
 
-/* Version switcher: one segment per source */
+/* Version button: a stack of circles, one per version, the shown one in front.
+   JS sets data-depth (0 = front); a change of depth animates, so switching versions
+   swaps the circles. Keep the deepest depth in step with MAX_DEPTH in song.js. */
+#version-stack {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  margin-top: -4px; /* makes room for the circles peeking out below */
+}
+
+.version-chip {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--comment);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--comment);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 300ms, background-color 300ms,
+    border-color 300ms, color 300ms;
+}
+
+.version-chip[data-depth="0"] {
+  z-index: 3;
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.version-chip[data-depth="1"] {
+  z-index: 2;
+  transform: translateY(8px) scale(0.9);
+}
+
+.version-chip[data-depth="2"] {
+  z-index: 1;
+  transform: translateY(13px) scale(0.8);
+}
+
+.version-chip[data-depth="3"] {
+  z-index: 0;
+  opacity: 0;
+  transform: translateY(12px) scale(0.7);
+}
+
+#version-toggle.open .version-chip[data-depth="0"] {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Version pills: one segment per source, in the box under the version button */
+#version-box {
+  top: calc(var(--topbar-height) + 10px);
+  bottom: auto;
+  padding: 8px;
+}
+
 #song-versions {
   display: inline-flex;
   gap: 2px;
@@ -684,9 +748,43 @@ body[data-view="song"]::after {
   animation: rise 150ms ease-out;
 }
 
+/* Boxes with the `slide` class (see popover.js) drop in from the top bar and rise back out */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes slide-up {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -14px);
+  }
+}
+
+.popover.slide {
+  animation: slide-down 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.popover.slide.closing {
+  animation: slide-up 140ms ease-in forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .enter {
+  .enter,
+  .popover.slide,
+  .popover.slide.closing {
     animation: none;
+  }
+
+  .version-chip {
+    transition: none;
   }
 
   #tuner-bar-marker,
