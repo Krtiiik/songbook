@@ -1,2 +1,2 @@
-chordpro-renderer[pdf]==1.1.1
+chordpro-renderer[pdf,flask]==1.1.1
 playwright==1.62.0
