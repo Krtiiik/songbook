@@ -34,6 +34,7 @@
         <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
         <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
         <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="i-external" viewBox="0 0 24 24"><path d="M13.5 4H20v6.5M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
         <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
         <symbol id="i-reset"viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></symbol>
     </svg>
@@ -81,10 +82,6 @@
             <h2 id="song-artist"></h2>
             <span id="song-capo" class="chip"></span>
         </div>
-
-        <div id="song-meta">
-            <span id="song-source"></span>
-        </div>
     </header>
 
     <main id="song-content"></main>
@@ -106,6 +103,7 @@
     <!-- Opens under the top bar, from the version button -->
     <div id="version-box" class="popover slide hidden">
         <div id="song-versions" role="group" aria-label="Verze písně"></div>
+        <a id="source-link" class="hidden" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true"><use href="#i-external"/></svg>Originál</a>
     </div>
 
     <div id="transpose-box" class="popover hidden">

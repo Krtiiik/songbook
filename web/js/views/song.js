@@ -22,7 +22,7 @@ const capo = document.getElementById("song-capo");
 const versions = document.getElementById("song-versions");
 const versionButton = document.getElementById("version-toggle");
 const versionStack = document.getElementById("version-stack");
-const source = document.getElementById("song-source");
+const sourceLink = document.getElementById("source-link");
 const position = document.getElementById("song-position");
 
 const MAX_DEPTH = 3; // circles deeper than the third are hidden; keep in step with base.css
@@ -87,7 +87,7 @@ function enter() {
     }
 }
 
-/** Version button, its pills and a link to the original songbook. */
+/** Version button, its pills and, under them, a link to the shown version's original. */
 function renderSources(song, version) {
     renderVersionButton(song, version);
 
@@ -106,25 +106,11 @@ function renderSources(song, version) {
         return button;
     }));
 
-    const several = song.versions.length > 1;
-    const items = [];
-    if (!several && version.url) {
-        items.push(Object.assign(document.createElement("span"), {
-            className: "version-label",
-            textContent: sourceLabel(version.source),
-        }));
-    }
+    sourceLink.classList.toggle("hidden", !version.url);
     if (version.url) {
-        const link = document.createElement("a");
-        link.className = "source-link";
-        link.href = version.url;
-        link.target = "_blank";
-        link.rel = "noopener";
-        link.title = `Originál: ${sourceLabel(version.source)}`;
-        link.textContent = "zdroj";
-        items.push(link);
+        sourceLink.href = version.url;
+        sourceLink.title = `Originál: ${sourceLabel(version.source)}`;
     }
-    source.replaceChildren(...items);
 }
 
 /**

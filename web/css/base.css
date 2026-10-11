@@ -366,14 +366,6 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   color: var(--comment);
 }
 
-#song-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 12px;
-  margin-top: 16px;
-}
-
 #song-capo {
   display: inline-block;
   margin-top: 10px;
@@ -449,6 +441,8 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   top: calc(var(--topbar-height) + 10px);
   bottom: auto;
   padding: 8px;
+  align-items: center;
+  gap: 6px;
 }
 
 #song-versions {
@@ -473,18 +467,24 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   font-weight: 600;
 }
 
-#song-source {
+#source-link {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  height: 30px;
+  padding: 0 13px 0 10px;
+  border-radius: 999px;
   font-size: 13px;
   color: var(--comment);
 }
 
-.source-link {
-  color: var(--comment);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+#source-link:hover {
+  color: var(--text);
+}
+
+#source-link .icon {
+  width: 16px;
+  height: 16px;
 }
 
 /* Toolbar: a floating pill, popovers open above it ***************************/
