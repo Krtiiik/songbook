@@ -13,6 +13,7 @@ body {
 
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
 
   scrollbar-color: var(--border) var(--bg);
 }
@@ -285,6 +286,11 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   cursor: pointer;
+}
+
+/* With the keyboard up there is no room for 28 letters, and typing does not need them */
+body:has(#search-input:focus) #letter-rail {
+  display: none;
 }
 
 #letter-rail.seeking {
