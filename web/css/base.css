@@ -192,6 +192,11 @@ body:not([data-view="song"]) :is(#song-topbar, #song-page, .seek, #song-toolbar,
   color: var(--comment);
 }
 
+/* The browser's own clear cross only shows while typing; #search-clear is always there */
+#search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
 #search-box:focus-within {
   outline: 2px solid var(--accent);
   outline-offset: 0;

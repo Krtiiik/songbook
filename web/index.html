@@ -34,7 +34,8 @@
         <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
         <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
         <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-        <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+        <symbol id="i-reset"viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></symbol>
     </svg>
 
     <!-- Song list ------------------------------------------------------------------>
@@ -53,6 +54,7 @@
             <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
             <input id="search-input" type="search" autocomplete="off" aria-label="Hledat píseň" placeholder="Název nebo interpret">
             <span id="search-count" class="chip"></span>
+            <button id="search-clear" class="button" type="button" title="Smazat hledání" aria-label="Smazat hledání"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button>
         </label>
         <nav id="song-list" aria-label="Seznam písní"></nav>
     </main>
@@ -62,7 +64,7 @@
     <!-- Song ----------------------------------------------------------------------->
     <header id="song-topbar" class="topbar">
         <div class="topbar-side">
-            <a class="button" href="#" title="Seznam písní" aria-label="Seznam písní"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></a>
+            <a id="index-link" class="button" href="#" title="Seznam písní" aria-label="Seznam písní"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></a>
         </div>
         <div id="song-position"></div>
         <div class="topbar-side topbar-end">
